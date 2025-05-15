@@ -1,4 +1,5 @@
 @import './fonts.css'; /* facultatif si tu as des polices personnalisées */
+@import 'keen-slider/keen-slider.min.css';
 
 @tailwind base;
 @tailwind components;

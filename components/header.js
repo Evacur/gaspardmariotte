@@ -19,7 +19,7 @@ export default function Header({ dark = false }) {
 
         {/* Desktop menu */}
         <nav className="hidden xl:flex gap-6 text-sm font-medium">
-          <Link href="/creations" className="hover:underline">Créations</Link>
+          <Link href="/creation" className="hover:underline">Créations</Link>
           <Link href="/collaborations" className="hover:underline">Collaborations</Link>
           <Link href="/expositions" className="hover:underline">Expositions</Link>
         </nav>
