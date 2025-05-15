@@ -1,10 +1,10 @@
-@import './fonts.css';
+@import './fonts.css'; /* facultatif si tu as des polices personnalisées */
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Variables facultatives */
+/* Variables personnalisées */
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -15,4 +15,3 @@ body {
   color: var(--foreground);
   font-family: 'Satoshi', sans-serif; /* police par défaut */
 }
-
