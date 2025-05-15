@@ -18,7 +18,7 @@ export default function Home() {
       <div className="absolute top-0 left-0 w-full h-full bg-black/40 z-10" />
       {/* Contenu au-dessus */}
       <div className="relative z-10 flex flex-col h-full">
-        <Header dark={true} logoSrc="/logo.svg" />
+        <Header dark={true} />
         <main className="flex-1 flex items-center justify-center text-white text-center px-4">
           <div>
             <h1 className="text-4xl font-clash font-medium">Gaspard Mariotte</h1>

@@ -15,7 +15,7 @@ export default function Header({ dark = false }) {
     <header className={`fixed top-0 w-full z-50 ${bgColor} ${textColor} px-6 py-4`}>
       <div className="flex justify-between items-center">
         {/* Logo responsive */}
-        <Logo className={`w-auto h-6 sm:h-7 lg:h-8 xl:h-10 ${logoColor}`} />
+        <Logo className={`w-auto h-3 sm:h-3 lg:h-3 xl:h-3 ${logoColor}`} />
 
         {/* Desktop menu */}
         <nav className="hidden xl:flex gap-6 text-sm font-medium">

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { client, urlFor } from '@/lib/sanity'
 import { groq } from 'next-sanity'
 import Link from 'next/link'
+import Header from '@/components/Header'
 
 const query = groq`
   *[_type == "creationSection"] | order(order asc) {
@@ -24,34 +25,66 @@ export default function CreationMenuPage() {
   }, [])
 
   return (
-    <main className="px-8 py-16">
-      <h1 className="text-7xl font-bold mb-16">Créations</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-        {sections.map((section, index) => (
-          <Link
-            key={section._id}
-            href={`/creation/${section.slug.current}`}
-            className="group block rounded-2xl overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow"
-          >
-            {section.image && (
-              <img
-                src={urlFor(section.image).width(800).height(500).fit('crop').url()}
-                alt={section.title}
-                className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-            )}
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-2">
-                <h2 className="text-2xl font-bold group-hover:underline">
-                  {section.title}
-                </h2>
-                <span className="text-sm text-gray-400">{index + 1}/4</span>
+    <div className="bg-white">
+      <Header dark={false} />
+      <main className="px-6 py-16">
+        <h1 className="sr-only">Créations</h1>
+        
+        <div className="space-y-32">
+          {sections.map((section, index) => (
+            <Link
+              key={section._id}
+              href={`/creation/${section.slug.current}`}
+              className="block group"
+            >
+              {/* 🖥️ Desktop layout */}
+              <div className="hidden lg:flex items-center justify-between h-[490px]">
+                {/* Texte à gauche */}
+                <div className="flex flex-col justify-center max-w-xl">
+                  <span className="text-sm font-medium mb-2">
+                    {index + 1}/{sections.length}
+                  </span>
+                  <h2 className="text-6xl font-clash font-semibold leading-none mb-4">
+                    {section.title}
+                  </h2>
+                  <p className="text-black text-base font-medium font-satoshi">{section.description}</p>
+                </div>
+
+                {/* Image à droite */}
+                {section.image && (
+                  <img
+                    src={urlFor(section.image).width(395).height(490).fit('crop').url()}
+                    alt={section.title}
+                    className="w-[395px] h-[490px] object-cover rotate-[3deg]"
+                  />
+                )}
               </div>
-              <p className="text-gray-600">{section.description}</p>
-            </div>
-          </Link>
-        ))}
-      </div>
-    </main>
+
+              {/* 📱 Mobile layout */}
+              <div className="relative h-[490px] flex lg:hidden overflow-hidden rounded-lg">
+                {/* Image de fond */}
+                {section.image && (
+                  <img
+                    src={urlFor(section.image).width(800).height(800).fit('crop').url()}
+                    alt={section.title}
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                )}
+
+                {/* Overlay sombre */}
+                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-colors duration-300" />
+
+                {/* Texte centré */}
+                <div className="relative z-10 flex flex-col items-center justify-center h-full text-white text-center px-4">
+                  <h2 className="text-4xl font-clash font-semibold leading-tight mb-2">
+                    {section.title}
+                  </h2>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </main>
+    </div>
   )
 }
