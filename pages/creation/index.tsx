@@ -3,25 +3,43 @@ import { client, urlFor } from '@/lib/sanity'
 import { groq } from 'next-sanity'
 import Link from 'next/link'
 
-const query = groq`
-  *[_type == "creationSection"] | order(order asc) {
-    _id,
-    title,
-    slug,
-    description,
-    image,
-    order
-  }
-`
+type Section = {
+  _id: string
+  title: string
+  slug: { current: string }
+  description: string
+  image: any
+  order: number
+}
+
+const query = groq`*[_type == "creationSection"] | order(order asc) {
+  _id,
+  title,
+  slug,
+  description,
+  image,
+  order
+}`
 
 export default function CreationMenuPage() {
-  const [sections, setSections] = useState([])
+  const [sections, setSections] = useState<Section[]>([])
+  const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
-    client.fetch(query).then((data) => {
-      setSections(data)
-    })
+    client
+      .fetch<Section[]>(query)
+      .then((data) => setSections(data))
+      .catch((err) => setError(err))
   }, [])
+
+  if (error) {
+    return (
+      <main className="p-8">
+        <h1 className="text-3xl font-bold text-red-600">Erreur Sanity</h1>
+        <pre className="bg-red-100 p-4 mt-4 rounded">{JSON.stringify(error, null, 2)}</pre>
+      </main>
+    )
+  }
 
   return (
     <main className="px-8 py-16">
