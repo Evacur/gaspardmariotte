@@ -12,17 +12,12 @@
     "noEmit": true,
     "skipLibCheck": true,
     "strict": false,
-    "baseUrl": ".", // 👈 Ajout ici
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./*"
-      ] // 👈 Ajout ici
+      "@/*": ["./*"]
     },
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "incremental": true
   },
   "include": [

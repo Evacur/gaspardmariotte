@@ -13,23 +13,23 @@ export default function Header({ dark = false }: HeaderProps) {
 
   const textColor = dark ? 'text-white' : 'text-black'
   const bgColor = dark ? 'bg-transparent' : 'bg-white'
-  const logoColor = dark ? 'fill-transparent' : 'fill-black'
+  const logoColor = dark ? 'fill-white' : 'fill-black'
   const iconStroke = dark ? '#ffffff' : '#000000'
 
   return (
     <header className={`fixed top-0 w-full z-50 ${bgColor} ${textColor} px-6 py-4`}>
       <div className="flex justify-between items-center">
-        
-        {/* Logo cliquable */}
+
+        {/* ✅ Logo affiché systématiquement */}
         <Link href="/" className="inline-block">
           <Logo className={`w-auto h-3 sm:h-3 lg:h-3 xl:h-3 ${logoColor}`} />
         </Link>
 
         {/* Desktop menu */}
-        <nav className="hidden xl:flex gap-6 text-sm font-medium">
+        <nav className="hidden xl:flex gap-6 text-sm font-medium justify-end">
           <Link href="/creation">Créations</Link>
-          <Link href="/collaborations">Collaborations</Link>
-          <Link href="/expositions">Expositions</Link>
+          <Link href="/collaboration">Collaborations</Link>
+          <Link href="/exposition">Expositions</Link>
         </nav>
 
         {/* Mobile menu button */}

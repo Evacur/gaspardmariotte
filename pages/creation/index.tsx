@@ -7,8 +7,8 @@ import Header from '@/components/Header'
 const query = groq`
   *[_type == "creationSection"] | order(order asc) {
     _id,
-    title,
     slug,
+    title,
     description,
     image,
     order
@@ -27,10 +27,8 @@ export default function CreationMenuPage() {
   return (
     <div className="bg-white">
       <Header dark={false} />
-      <main className="px-6 py-16">
-        <h1 className="sr-only">Créations</h1>
-
-        <div className="space-y-6 lg:space-y-32">
+      <main className="px-6 py-32">
+        <div className="space-y-32 lg:space-y-32">
           {sections.map((section, index) => (
             <Link
               key={section._id}

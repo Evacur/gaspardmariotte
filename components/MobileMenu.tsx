@@ -58,7 +58,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               </a>
             </Link>
 
-            <Link href="/collaborations" passHref legacyBehavior>
+            <Link href="/collaboration" passHref legacyBehavior>
               <a
                 onClick={onClose}
                 className="flex w-full font-clash font-medium items-baseline gap-3 border-b-2 border-black pb-4 px-6"
