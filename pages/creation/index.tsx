@@ -29,8 +29,8 @@ export default function CreationMenuPage() {
       <Header dark={false} />
       <main className="px-6 py-16">
         <h1 className="sr-only">Créations</h1>
-        
-        <div className="space-y-32">
+
+        <div className="space-y-6 lg:space-y-32">
           {sections.map((section, index) => (
             <Link
               key={section._id}
@@ -55,27 +55,27 @@ export default function CreationMenuPage() {
                   <img
                     src={urlFor(section.image).width(395).height(490).fit('crop').url()}
                     alt={section.title}
-                    className="w-[395px] h-[490px] object-cover rotate-[3deg]"
+                    className="w-[395px] h-[490px] object-cover rotate-[2deg] origin-center rounded-sm"
                   />
                 )}
               </div>
 
               {/* 📱 Mobile layout */}
-              <div className="relative h-[490px] flex lg:hidden overflow-hidden rounded-lg">
+              <div className="relative h-[400px] flex lg:hidden overflow-hidden rounded-[2px]">
                 {/* Image de fond */}
                 {section.image && (
                   <img
                     src={urlFor(section.image).width(800).height(800).fit('crop').url()}
                     alt={section.title}
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="absolute inset-0 w-full h-full object-cover z-0 group-hover:scale-105 transition-transform duration-500"
                   />
                 )}
 
                 {/* Overlay sombre */}
-                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-colors duration-300" />
+                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-colors duration-300 z-10" />
 
                 {/* Texte centré */}
-                <div className="relative z-10 flex flex-col items-center justify-center h-full text-white text-center px-4">
+                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-white text-center px-6">
                   <h2 className="text-4xl font-clash font-semibold leading-tight mb-2">
                     {section.title}
                   </h2>

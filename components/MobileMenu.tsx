@@ -1,7 +1,12 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 
-export default function MobileMenu({ isOpen, onClose }) {
+type MobileMenuProps = {
+  isOpen: boolean
+  onClose: () => void
+}
+
+export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -14,9 +19,11 @@ export default function MobileMenu({ isOpen, onClose }) {
           transition={{ duration: 0.4 }}
         >
           {/* Bouton de fermeture */}
-          <button onClick={onClose}
+          <button
+            onClick={onClose}
             className="absolute top-6 right-6 text-black text-3xl"
-            aria-label="Fermer le menu">
+            aria-label="Fermer le menu"
+          >
             <svg
               width="24"
               height="24"
@@ -39,10 +46,9 @@ export default function MobileMenu({ isOpen, onClose }) {
             </svg>
           </button>
 
-
           {/* Liens */}
           <nav className="flex flex-col items-start gap-10 text-3xl sm:text-5xl md:text-7xl tracking-wide font-light w-full">
-            <Link href="/creations" passHref legacyBehavior>
+            <Link href="/creation" passHref legacyBehavior>
               <a
                 onClick={onClose}
                 className="flex w-full font-clash font-medium items-baseline gap-3 border-b-2 border-black pb-4 px-6"

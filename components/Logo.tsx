@@ -1,4 +1,8 @@
-export default function Logo({ className = '' }) {
+type LogoProps = {
+  className?: string
+}
+
+export default function Logo({ className = '' }: LogoProps) {
   return (
     <svg
       className={className}
@@ -30,5 +34,5 @@ export default function Logo({ className = '' }) {
         </clipPath>
       </defs>
     </svg>
-  );
+  )
 }
