@@ -30,6 +30,7 @@ export default function CollaborationPage({ data }: Props) {
     <div className="bg-white">
       <Header dark={true} />
 
+      {/* ✅ Bannière sans animation */}
       <ProjectBanner
         title={data.title}
         slug={data.slug.current}
@@ -80,7 +81,7 @@ export default function CollaborationPage({ data }: Props) {
   )
 }
 
-// Génération des routes dynamiques
+// Routes dynamiques
 export const getStaticPaths: GetStaticPaths = async () => {
   const slugs = await client.fetch(
     groq`*[_type == "collaboration" && defined(slug.current)]{ slug }`

@@ -12,14 +12,13 @@ type Collaboration = {
 }
 
 const query = groq`
-  *[_type == "collaboration"] | order(annee desc) {
+  *[_type == "collaboration" && !(_id in path("drafts.**"))] | order(annee desc) {
     _id,
     title,
     slug,
     banner
   }
 `
-
 export default function CollaborationIndexPage() {
   const [collaborations, setCollaborations] = useState<Collaboration[]>([])
 
@@ -30,6 +29,7 @@ export default function CollaborationIndexPage() {
   return (
     <div className="bg-white">
       <Header dark={false} />
+
       <main className="px-4 pt-32 pb-12">
         <h1 className="text-4xl md:text-6xl font-bold mb-12 text-center">Collaborations</h1>
 
