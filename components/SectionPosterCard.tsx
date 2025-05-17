@@ -21,7 +21,7 @@ export default function SectionPosterCard({ title, slug, banner }: Props) {
 
   return (
     <Link
-      href={`/${slug}`}
+      href={`/collaboration/${slug}`}
       scroll={false}
       className="
         group relative
