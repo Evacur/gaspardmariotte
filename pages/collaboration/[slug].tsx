@@ -23,6 +23,7 @@ type Collaboration = {
     rightImage?: any
     image?: any
     imagePosition?: 'left' | 'right'
+    title?: string
     text?: any[]
     topImage?: any
     bottomImage?: any
@@ -48,7 +49,7 @@ export default function CollaborationPage({ data }: Props) {
         prestation={data.prestation}
       />
 
-      <main className="px-6 py-12 max-w-6xl mx-auto space-y-16">
+      <main className="px-6 py-12 max-w-6xl mx-auto space-y-6">
         {data.sections?.map((block, index) => {
           switch (block._type) {
             case 'videoBlock':
@@ -67,6 +68,7 @@ export default function CollaborationPage({ data }: Props) {
                   key={index}
                   image={block.image}
                   imagePosition={block.imagePosition || 'left'}
+                  title={block.title}
                   text={block.text || []}
                 />
               )
