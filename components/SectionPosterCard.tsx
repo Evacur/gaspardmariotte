@@ -24,7 +24,7 @@ export default function SectionPosterCard({ title, slug, banner, basePath = 'exp
     <Link
       href={href}
       scroll={false}
-      className="group relative w-full sm:w-[calc(50%-8px)] md:w-[calc(33.333%-10.66px)] xl:w-[calc(25%-12px)] h-[300px] md:h-[350px] rounded-sm overflow-hidden bg-black"
+className="group relative w-full sm:w-full md:w-full lg:w-[250px] h-[300px] rounded-sm overflow-hidden bg-black"
     >
       {imageUrl ? (
         <img src={imageUrl} alt={title} className="w-full h-full object-cover" />

@@ -19,6 +19,7 @@ const query = groq`
     banner
   }
 `
+
 export default function CollaborationIndexPage() {
   const [collaborations, setCollaborations] = useState<Collaboration[]>([])
 
@@ -30,21 +31,24 @@ export default function CollaborationIndexPage() {
     <div className="bg-white">
       <Header dark={false} />
 
-      <main className="px-4 pt-32 pb-12">
-        <h1 className="text-4xl font-clash md:text-6xl font-semibold mb-8 text-center">Collaborations</h1>
+      <main className="pt-32 pb-12">
+        <h1 className="text-4xl font-clash md:text-6xl font-semibold mb-8 text-center">
+          Collaborations
+        </h1>
 
-        <div className="flex justify-center">
-          <div className="flex flex-wrap gap-4 w-full max-w-screen-xl">
-            {collaborations.map((item) => (
-              <SectionPosterCard
-                key={item._id}
-                title={item.title}
-                slug={item.slug.current}
-                banner={item.banner}
-                basePath="collaboration" 
-              />
-
-            ))}
+        <div className="px-4 lg:px-0">
+          <div className="w-full max-w-screen-xl mx-auto items-center">
+            <div className="flex flex-wrap gap-6 justify-center lg:justify-start">
+              {collaborations.map((item) => (
+                <SectionPosterCard
+                  key={item._id}
+                  title={item.title}
+                  slug={item.slug.current}
+                  banner={item.banner}
+                  basePath="collaboration"
+                />
+              ))}
+            </div>
           </div>
         </div>
       </main>

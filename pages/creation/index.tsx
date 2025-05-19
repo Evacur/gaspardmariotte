@@ -27,8 +27,8 @@ export default function CreationMenuPage() {
   return (
     <div className="bg-white">
       <Header dark={false} />
-      <main className="px-6 py-32">
-        <div className="space-y-8 lg:space-y-32 sm:space-y-6">
+      <main className="px-6 pt-14 pb-4 lg:pt-24 lg:py-16 max-w-[1440px] mx-auto">  
+        <div className="space-y-8 lg:space-y-32 sm:space-y-6 items-center">
           {sections.map((section, index) => (
             <Link
               key={section._id}
