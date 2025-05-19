@@ -31,40 +31,42 @@ export default function ProjectBanner({
           className="absolute inset-0 w-full h-full object-cover z-0"
         />
       )}
-      {/* Overlay sombre */}
+
+      {/* Overlay */}
       <div className="absolute inset-0 bg-black/40 z-10" />
 
-      {/* Contenu */}
-      <div className="absolute bottom-0 left-0 right-0 z-20 px-4 pb-6 md:px-6">
-        <div className="max-w-screen-lg mx-auto">
+      {/* Contenu aligné en bas */}
+      <div className="relative z-20 h-full flex flex-col justify-end px-4 pb-6 md:pb-2">
+        {/* max-w si tu veux centrer horizontalement */}
+        <div className="w-full max-w-screen-lg mx-auto">
           {/* Titre */}
-          <h1 className="text-3xl sm:text-2xl md:text-6xl font-bold mb-6 leading-tight break-words">
+          <h1 className="text-3xl sm:text-2xl md:text-6xl font-bold mb-3 leading-tight break-words">
             {title}
           </h1>
 
-          {/* Grille mobile, flex md+ */}
-          <div className="grid grid-cols-2 gap-y-4 gap-x-12 text-sm md:text-base text-white/90 md:flex md:flex-wrap md:gap-x-12">
-            {/* Col 1 */}
-            <div>
+          {/* Infos */}
+          <div className="grid grid-cols-3 gap-x-4 gap-y-8 text-sm md:flex md:flex-wrap md:gap-y-2 text-white/90">
+            <div className="flex flex-col">
               <p className="text-sm font-semibold tracking-wide text-white">Année</p>
               <p>{annee ? annee.slice(0, 4) : '—'}</p>
             </div>
-            <div>
-              <p className="text-sm font-semibold tracking-wide text-white">Prestation</p>
-              <p>{prestation || '—'}</p>
-            </div>
-            <div>
+            <div className="flex flex-col">
               <p className="text-sm font-semibold tracking-wide text-white">Surface</p>
               <p>{surface || '—'}</p>
             </div>
-            <div>
-              <p className="text-sm font-semibold tracking-wide text-white">Lieu</p>
-              <p>{lieu || '—'}</p>
-            </div>
-            <div className="col-span-2 md:col-span-1">
+            <div className="flex flex-col">
               <p className="text-sm font-semibold tracking-wide text-white">Client</p>
               <p>{client || '—'}</p>
             </div>
+            <div className="flex flex-col pb-0 md:pb-0">
+              <p className="text-sm font-semibold tracking-wide text-white">Prestation</p>
+              <p>{prestation || '—'}</p>
+            </div>
+            <div className="flex flex-col pb-0 md:pb-0">
+              <p className="text-sm font-semibold tracking-wide text-white">Lieu</p>
+              <p>{lieu || '—'}</p>
+            </div>
+            <div className="hidden md:block" />
           </div>
         </div>
       </div>
