@@ -16,6 +16,7 @@ type Collaboration = {
   slug: { current: string }
   annee?: string
   lieu?: string
+  client?: string
   surface?: string
   prestation?: string
   banner?: any
@@ -39,12 +40,15 @@ export default function CollaborationPage({ data, previousProject, nextProject }
         title={data.title}
         slug={data.slug.current}
         banner={data.banner}
-        annee={data.annee}
-        lieu={data.lieu}
-        surface={data.surface}
-        prestation={data.prestation}
-        client={''} // à ajouter si besoin dans le schéma
+        infoItems={[
+          { label: 'Année', value: data.annee?.slice(0, 4) },
+          { label: 'Lieu', value: data.lieu },
+          { label: 'Surface', value: data.surface },
+          { label: 'Client', value: data.client },
+          { label: 'Prestation', value: data.prestation },
+        ]}
       />
+
 
       <main className="px-6 py-12 max-w-6xl mx-auto space-y-6">
         {data.sections?.map((block, index) => {
@@ -64,22 +68,24 @@ export default function CollaborationPage({ data, previousProject, nextProject }
 
         {/* Navigation vers projets suivant / précédent */}
         {(previousProject || nextProject) && (
-          <div className="w-full max-w-screen-lg mx-auto flex flex-col md:flex-row h-[200px] gap-[25px]">
+          <div className="w-full max-w-screen-lg mx-auto flex flex-col md:flex-row gap-[25px]">
             {previousProject && previousProject.slug?.current && (
-              <div className="w-full md:w-1/2">
+              <div className="w-full md:w-1/2 h-[200px]">
                 <ProjectNavCard
                   direction="prev"
                   slug={previousProject.slug.current}
                   banner={previousProject.banner}
+                  basePath="collaboration" // 👈 ici
                 />
               </div>
             )}
             {nextProject && nextProject.slug?.current && (
-              <div className="w-full md:w-1/2">
+              <div className="w-full md:w-1/2 h-[200px]">
                 <ProjectNavCard
                   direction="next"
                   slug={nextProject.slug.current}
                   banner={nextProject.banner}
+                  basePath="collaboration"
                 />
               </div>
             )}
@@ -128,6 +134,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
         surface,
         prestation,
         banner,
+        client,
         sections[] { ... }
       }
     `,

@@ -31,7 +31,7 @@ export default function CollaborationIndexPage() {
       <Header dark={false} />
 
       <main className="px-4 pt-32 pb-12">
-        <h1 className="text-4xl md:text-6xl font-bold mb-12 text-center">Collaborations</h1>
+        <h1 className="text-4xl font-clash md:text-6xl font-semibold mb-8 text-center">Collaborations</h1>
 
         <div className="flex justify-center">
           <div className="flex flex-wrap gap-4 w-full max-w-screen-xl">
@@ -41,7 +41,9 @@ export default function CollaborationIndexPage() {
                 title={item.title}
                 slug={item.slug.current}
                 banner={item.banner}
+                basePath="collaboration" 
               />
+
             ))}
           </div>
         </div>

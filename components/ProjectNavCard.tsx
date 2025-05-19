@@ -5,12 +5,20 @@ interface ProjectNavCardProps {
   direction: 'prev' | 'next'
   slug: string
   banner: any
+  basePath?: 'exposition' | 'collaboration' // Ajout ici
 }
 
-export default function ProjectNavCard({ direction, slug, banner }: ProjectNavCardProps) {
+export default function ProjectNavCard({
+  direction,
+  slug,
+  banner,
+  basePath = 'exposition', // Valeur par défaut
+}: ProjectNavCardProps) {
+  const href = `/${basePath}/${slug}`
+
   return (
     <Link
-      href={`/collaboration/${slug}`}
+      href={href}
       className="w-full h-[200px] rounded-sm overflow-hidden bg-gray-300"
     >
       <div className="relative w-full h-full group rounded-sm overflow-hidden">
@@ -19,6 +27,7 @@ export default function ProjectNavCard({ direction, slug, banner }: ProjectNavCa
           <img
             src={urlFor(banner).url()}
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            alt=""
           />
         )}
 
