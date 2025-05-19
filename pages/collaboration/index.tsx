@@ -45,7 +45,7 @@ export default function CollaborationIndexPage() {
         <motion.h1
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 3., ease: [0.11, 0.68, 0.17, 0.99] }}
+          transition={{ duration: 3, ease: [0.11, 0.68, 0.17, 0.99] }}
           className="text-4xl font-clash md:text-6xl font-semibold mb-8 text-center"
         >
           Collaborations
@@ -62,9 +62,9 @@ export default function CollaborationIndexPage() {
                   transition={{
                     duration: 1.5,
                     delay: 0.5 + index * 0.15,
-                    ease: [0.50, 0.70, 0.17, 0.90],
+                    ease: [0.5, 0.7, 0.17, 0.9],
                   }}
-                  className="block"
+                  className="w-full sm:w-full md:w-full lg:w-[250px] h-[300px]" // <-- Important !!
                 >
                   <SectionPosterCard
                     title={item.title}

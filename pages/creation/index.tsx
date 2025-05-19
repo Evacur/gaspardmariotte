@@ -4,6 +4,15 @@ import { groq } from "next-sanity"
 import Header from "@/components/Header"
 import WavyCreationCard from "@/components/WavyCreationCard"
 
+type Section = {
+  _id: string
+  slug: { current: string }
+  title: string
+  description: string
+  image?: any
+  order?: number
+}
+
 const query = groq`
   *[_type == "creationSection"] | order(order asc) {
     _id,
@@ -16,10 +25,18 @@ const query = groq`
 `
 
 export default function CreationMenuPage() {
-  const [sections, setSections] = useState([])
+  const [sections, setSections] = useState<Section[]>([])
 
   useEffect(() => {
-    client.fetch(query).then(setSections)
+    const fetchData = async () => {
+      try {
+        const data = await client.fetch<Section[]>(query)
+        setSections(data)
+      } catch (error) {
+        console.error("Erreur fetch sanity:", error)
+      }
+    }
+    fetchData()
   }, [])
 
   return (

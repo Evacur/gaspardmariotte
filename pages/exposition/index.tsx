@@ -63,7 +63,7 @@ export default function ExpositionIndexPage() {
                   delay: 0.2 + index * 0.15,
                   ease: [0.11, 0.68, 0.17, 0.99],
                 }}
-                className="block"
+                className="w-full sm:w-full md:w-full lg:w-[250px] h-[300px]" // <-- Important pour respecter les contraintes
               >
                 <SectionPosterCard
                   title={item.title}
