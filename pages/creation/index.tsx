@@ -4,7 +4,8 @@ import { groq } from "next-sanity"
 import Header from "@/components/Header"
 import WavyCreationCard from "@/components/WavyCreationCard"
 
-type Section = {
+// Type qui correspond exactement à ton schéma Sanity creationSection
+export type CreationSection = {
   _id: string
   slug: { current: string }
   title: string
@@ -25,12 +26,12 @@ const query = groq`
 `
 
 export default function CreationMenuPage() {
-  const [sections, setSections] = useState<Section[]>([])
+  const [sections, setSections] = useState<CreationSection[]>([])
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await client.fetch<Section[]>(query)
+        const data = await client.fetch<CreationSection[]>(query)
         setSections(data)
       } catch (error) {
         console.error("Erreur fetch sanity:", error)
@@ -40,21 +41,20 @@ export default function CreationMenuPage() {
   }, [])
 
   return (
-    <div className="bg-white">
+    <div className="bg-white h-screen">
       <Header dark={false} />
-      <main className="px-6 pt-14 pb-4 lg:pt-24 lg:py-16 max-w-[1440px] mx-auto">
-        <div className="space-y-8 lg:space-y-32 sm:space-y-6 items-center">
-          {sections.map((section, index) => (
-            <WavyCreationCard
-              key={section._id}
-              section={section}
-              index={index}
-              total={sections.length}
-              filterStrength={1}
-              glitchEdges={false}
-            />
-          ))}
-        </div>
+      {/* Scroll snapping en desktop, empilement sur mobile */}
+      <main className="lg:snap-y lg:snap-mandatory lg:overflow-y-scroll h-screen">
+        {sections.map((section, index) => (
+          <WavyCreationCard
+            key={section._id}
+            section={section}
+            index={index}
+            total={sections.length}
+            filterStrength={1}
+            glitchEdges={false}
+          />
+        ))}
       </main>
     </div>
   )
