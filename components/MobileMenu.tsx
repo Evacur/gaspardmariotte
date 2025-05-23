@@ -13,10 +13,10 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
         <motion.div
           className="fixed inset-0 z-50 flex flex-col items-start gap-8 bg-cover bg-center text-black font-medium px-0 pt-32"
           style={{ backgroundImage: "url('/fondmenu.png')" }}
-          initial={{ opacity: 0 }}
+          initial={{ opacity: 0.5 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.4 }}
+          transition={{ duration: 0.2 }}
         >
           {/* Bouton de fermeture */}
           <button
