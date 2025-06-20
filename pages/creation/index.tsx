@@ -4,7 +4,6 @@ import { groq } from "next-sanity"
 import Header from "@/components/Header"
 import WavyCreationCard from "@/components/WavyCreationCard"
 
-// Type qui correspond exactement à ton schéma Sanity creationSection
 export type CreationSection = {
   _id: string
   slug: { current: string }
@@ -42,9 +41,10 @@ export default function CreationMenuPage() {
 
   return (
     <div className="bg-white h-screen">
-      <Header dark={false} />
-      {/* Scroll snapping en desktop, empilement sur mobile */}
-      <main className="lg:snap-y lg:snap-mandatory lg:overflow-y-scroll h-screen">
+      {/* HEADER EN FIXED + Z-30 */}
+      <Header dark={false} className="fixed top-0 left-0 w-full z-30" />
+      {/* Ajoute un padding-top pour ne pas que le contenu passe sous le header */}
+      <main className="pt-16 lg:snap-y lg:snap-mandatory lg:overflow-y-scroll h-screen">
         {sections.map((section, index) => (
           <WavyCreationCard
             key={section._id}

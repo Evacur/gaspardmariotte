@@ -1,7 +1,10 @@
-import React, { useRef, useEffect, useState } from "react"
+"use client"
+
+import { useRef, useEffect } from "react"
 import Link from "next/link"
-import { urlFor } from "@/lib/sanity"
+import { urlFor } from "../lib/sanity"
 import { motion } from "framer-motion"
+import * as THREE from "three"
 
 export type CreationSection = {
   _id: string
@@ -20,145 +23,258 @@ type Props = {
   glitchEdges?: boolean
 }
 
-export default function WavyCreationCard({
-  section,
-  index,
-  total,
-  filterStrength = 1,
-  glitchEdges = false,
-}: Props) {
-  const imageUrl = section.image
-    ? urlFor(section.image).width(340).height(430).fit("crop").url()
-    : null
-  const imageMobileUrl = section.image
-    ? urlFor(section.image).width(800).height(800).fit("crop").url()
-    : null
+interface RippleSetup {
+  scene: THREE.Scene
+  camera: THREE.OrthographicCamera
+  renderer: THREE.WebGLRenderer
+  material: THREE.ShaderMaterial
+}
 
-  // On génère DEUX ids de filtre, pour alterner
-  const filterIdA = useRef(`wavy-filter-a-${Math.random().toString(36).substr(2, 9)}`).current
-  const filterIdB = useRef(`wavy-filter-b-${Math.random().toString(36).substr(2, 9)}`).current
+export default function WavyCreationCard({ section, index, total, filterStrength = 0.7, glitchEdges = false }: Props) {
+  const imageUrl = section.image ? urlFor(section.image).width(1200).height(1600).fit("crop").url() : null
+  const imageMobileUrl = section.image ? urlFor(section.image).width(1200).height(1200).fit("crop").url() : null
 
-  // Permet de switcher le filterId appliqué sur l'image (A ou B)
-  const [activeFilter, setActiveFilter] = useState<'A' | 'B'>('A')
+  // WebGL refs
+  const desktopCanvasRef = useRef<HTMLDivElement>(null)
+  const mobileCanvasRef = useRef<HTMLDivElement>(null)
+  const desktopSetupRef = useRef<RippleSetup>()
+  const mobileSetupRef = useRef<RippleSetup>()
+  const animationRef = useRef<number>()
 
-  // Références vers les turbulences/displacements
-  const turbulenceA = useRef<SVGFETurbulenceElement | null>(null)
-  const displacementA = useRef<SVGFEDisplacementMapElement | null>(null)
-  const turbulenceB = useRef<SVGFETurbulenceElement | null>(null)
-  const displacementB = useRef<SVGFEDisplacementMapElement | null>(null)
+  // Setup WebGL effect
+  const setupRippleEffect = (container: HTMLDivElement, imageUrl: string): Promise<RippleSetup> => {
+    return new Promise((resolve) => {
+      // Scene setup
+      const scene = new THREE.Scene()
+      const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
 
-  // Ajout des deux SVG filters
+      const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true })
+      renderer.setSize(container.offsetWidth, container.offsetHeight)
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+      container.appendChild(renderer.domElement)
+
+      // Load texture
+      const textureLoader = new THREE.TextureLoader()
+      textureLoader.load(imageUrl, (texture) => {
+        texture.wrapS = THREE.ClampToEdgeWrapping
+        texture.wrapT = THREE.ClampToEdgeWrapping
+        texture.minFilter = THREE.LinearFilter
+        texture.magFilter = THREE.LinearFilter
+
+        // Calculate aspect ratios
+        const imageAspect = texture.image.width / texture.image.height
+        const containerAspect = container.offsetWidth / container.offsetHeight
+
+        // Shader material
+        const material = new THREE.ShaderMaterial({
+          uniforms: {
+            uTexture: { value: texture },
+            uTime: { value: 0 },
+            uResolution: { value: new THREE.Vector2(container.offsetWidth, container.offsetHeight) },
+            uRipple1: { value: new THREE.Vector3(0.5, 0.5, 0) },
+            uRipple2: { value: new THREE.Vector3(0.3, 0.7, 0) },
+            uRipple3: { value: new THREE.Vector3(0.7, 0.3, 0) },
+          },
+          vertexShader: `
+            varying vec2 vUv;
+            void main() {
+              vUv = uv;
+              gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+          `,
+          fragmentShader: `
+  uniform sampler2D uTexture;
+  uniform float uTime;
+  uniform vec2 uResolution;
+  uniform vec3 uRipple1;
+  uniform vec3 uRipple2;
+  uniform vec3 uRipple3;
+  varying vec2 vUv;
+
+  float ripple(vec2 uv, vec3 rippleData) {
+    vec2 center = rippleData.xy;
+    float time = rippleData.z;
+    
+    float dist = distance(uv, center);
+    float rippleTime = uTime * 1.5 + time;
+    
+    float wave1 = sin(dist * 25.0 - rippleTime * 3.0) * 0.5 + 0.5;
+    float wave2 = sin(dist * 15.0 - rippleTime * 2.0) * 0.5 + 0.5;
+    float wave3 = sin(dist * 35.0 - rippleTime * 4.0) * 0.5 + 0.5;
+    
+    float falloff = 1.0 - smoothstep(0.0, 0.6, dist);
+    float timeFalloff = 1.0 - smoothstep(0.0, 8.0, rippleTime);
+    
+    return (wave1 * 0.4 + wave2 * 0.3 + wave3 * 0.3) * falloff * timeFalloff;
+  }
+
+  void main() {
+    vec2 uv = vUv;
+  
+  // Create multiple ripples
+  float ripple1Effect = ripple(uv, uRipple1);
+  float ripple2Effect = ripple(uv, uRipple2);
+  float ripple3Effect = ripple(uv, uRipple3);
+  
+  // Combine ripples
+  float totalRipple = ripple1Effect + ripple2Effect + ripple3Effect;
+  
+  // Add some base wave motion
+  float baseWave = sin(uv.x * 8.0 + uTime * 0.4) * sin(uv.y * 6.0 + uTime * 0.3) * 0.015;
+  
+  // Distort UV coordinates
+  vec2 distortedUV = uv + vec2(
+    sin(uv.y * 12.0 + uTime * 0.6) * 0.004,
+    cos(uv.x * 10.0 + uTime * 0.5) * 0.004
+  );
+  
+  distortedUV += (totalRipple + baseWave) * 0.015;
+  
+  // Use the distorted UVs directly without aspect ratio adjustment
+  vec4 color = texture2D(uTexture, distortedUV);
+  
+  // Add some shimmer effect
+  float shimmer = sin(uv.x * 40.0 + uTime * 1.5) * sin(uv.y * 25.0 + uTime * 1.2) * 0.08;
+  color.rgb += shimmer * 0.08;
+  
+  // Add ripple highlights
+  color.rgb += totalRipple * 0.08;
+  
+  gl_FragColor = color;
+}
+`,
+        })
+
+        // Geometry
+        const geometry = new THREE.PlaneGeometry(2, 2)
+        const mesh = new THREE.Mesh(geometry, material)
+        scene.add(mesh)
+
+        // Resolve with the setup
+        resolve({ scene, camera, renderer, material })
+      })
+    })
+  }
+
   useEffect(() => {
-    const addFilter = (id: string, numOctaves: number, scale: number) => {
-      if (!document.getElementById(id)) {
-        const svg = document.createElement("div")
-        svg.innerHTML = `
-          <svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;">
-            <filter id="${id}" x="-30%" y="-30%" width="160%" height="160%" primitiveUnits="userSpaceOnUse">
-              <feTurbulence
-                type="turbulence"
-                baseFrequency="0.008 0.01"
-                numOctaves="${numOctaves}"
-                result="turbulence"
-                seed="2"
-              />
-              <feGaussianBlur in="turbulence" stdDeviation="0.7" result="blurredTurbulence" />
-              <feDisplacementMap
-                in2="blurredTurbulence"
-                in="SourceGraphic"
-                scale="${scale}"
-                xChannelSelector="R"
-                yChannelSelector="G"
-                result="displaced"
-              />
-              <feMorphology in="SourceAlpha" operator="dilate" radius="2" result="dilatedAlpha"/>
-              <feComposite in="displaced" in2="dilatedAlpha" operator="in" />
-            </filter>
-          </svg>
-        `
-        document.body.appendChild(svg)
+    if (!imageUrl || !imageMobileUrl) return
+
+    const initializeEffects = async () => {
+      try {
+        // Setup desktop effect
+        if (desktopCanvasRef.current) {
+          const desktopSetup = await setupRippleEffect(desktopCanvasRef.current, imageUrl)
+          desktopSetupRef.current = desktopSetup
+        }
+
+        // Setup mobile effect
+        if (mobileCanvasRef.current) {
+          const mobileSetup = await setupRippleEffect(mobileCanvasRef.current, imageMobileUrl)
+          mobileSetupRef.current = mobileSetup
+        }
+
+        // Animation loop
+        const animate = () => {
+          const time = performance.now() * 0.001
+
+          // Update desktop effect
+          if (desktopSetupRef.current) {
+            const { material, renderer, scene, camera } = desktopSetupRef.current
+
+            material.uniforms.uTime.value = time
+
+            // Update ripple positions over time
+            material.uniforms.uRipple1.value.z = Math.sin(time * 0.3) * 4.0
+            material.uniforms.uRipple2.value.z = Math.sin(time * 0.4 + 1.0) * 4.0
+            material.uniforms.uRipple3.value.z = Math.sin(time * 0.5 + 2.0) * 4.0
+
+            // Slowly move ripple centers
+            material.uniforms.uRipple1.value.x = 0.5 + Math.sin(time * 0.08) * 0.15
+            material.uniforms.uRipple1.value.y = 0.5 + Math.cos(time * 0.12) * 0.15
+
+            material.uniforms.uRipple2.value.x = 0.3 + Math.sin(time * 0.1 + 1.0) * 0.12
+            material.uniforms.uRipple2.value.y = 0.7 + Math.cos(time * 0.15 + 1.0) * 0.12
+
+            material.uniforms.uRipple3.value.x = 0.7 + Math.sin(time * 0.06 + 2.0) * 0.18
+            material.uniforms.uRipple3.value.y = 0.3 + Math.cos(time * 0.11 + 2.0) * 0.18
+
+            renderer.render(scene, camera)
+          }
+
+          // Update mobile effect
+          if (mobileSetupRef.current) {
+            const { material, renderer, scene, camera } = mobileSetupRef.current
+
+            material.uniforms.uTime.value = time
+
+            material.uniforms.uRipple1.value.z = Math.sin(time * 0.3) * 4.0
+            material.uniforms.uRipple2.value.z = Math.sin(time * 0.4 + 1.0) * 4.0
+            material.uniforms.uRipple3.value.z = Math.sin(time * 0.5 + 2.0) * 4.0
+
+            material.uniforms.uRipple1.value.x = 0.5 + Math.sin(time * 0.08) * 0.15
+            material.uniforms.uRipple1.value.y = 0.5 + Math.cos(time * 0.12) * 0.15
+
+            material.uniforms.uRipple2.value.x = 0.3 + Math.sin(time * 0.1 + 1.0) * 0.12
+            material.uniforms.uRipple2.value.y = 0.7 + Math.cos(time * 0.15 + 1.0) * 0.12
+
+            material.uniforms.uRipple3.value.x = 0.7 + Math.sin(time * 0.06 + 2.0) * 0.18
+            material.uniforms.uRipple3.value.y = 0.3 + Math.cos(time * 0.11 + 2.0) * 0.18
+
+            renderer.render(scene, camera)
+          }
+
+          animationRef.current = requestAnimationFrame(animate)
+        }
+
+        animate()
+      } catch (error) {
+        console.error("Error initializing ripple effects:", error)
       }
     }
-    addFilter(filterIdA, glitchEdges ? 3 : 2, filterStrength * 8)
-    addFilter(filterIdB, glitchEdges ? 3 : 2, filterStrength * 8)
-  }, [filterIdA, filterIdB, glitchEdges, filterStrength])
 
-  // Animation, pour chaque filtre
-  useEffect(() => {
-    turbulenceA.current = document.querySelector(
-      `#${filterIdA} feTurbulence`
-    ) as SVGFETurbulenceElement | null
-    displacementA.current = document.querySelector(
-      `#${filterIdA} feDisplacementMap`
-    ) as SVGFEDisplacementMapElement | null
+    initializeEffects()
 
-    turbulenceB.current = document.querySelector(
-      `#${filterIdB} feTurbulence`
-    ) as SVGFETurbulenceElement | null
-    displacementB.current = document.querySelector(
-      `#${filterIdB} feDisplacementMap`
-    ) as SVGFEDisplacementMapElement | null
-
-    let animationFrameId: number
-    let time = 0
-    let seedA = 2
-    let seedB = 4
-
-    // Switch le filtre appliqué à l'image toutes les 7s (ajustable)
-    const SWITCH_INTERVAL = 7 // en secondes
-    let lastSwitch = 0
-
-    const animate = () => {
-      time += 0.004
-
-      // Anime le filtre A
-      if (turbulenceA.current) {
-        const freqX = 0.005 + 0.015 * Math.sin(time)
-        const freqY = 0.01 + 0.006 * Math.cos(time * 4.1)
-        turbulenceA.current.setAttribute("baseFrequency", `${freqX} ${freqY}`)
-        // Change seed aussi pour anti-freeze
-        if (Math.floor(time * 60) % 150 === 0) {
-          seedA = (seedA + 1) % 9999
-          turbulenceA.current.setAttribute("seed", seedA.toString())
-        }
-      }
-      if (displacementA.current) {
-        const scale = filterStrength * (4 + 6 * Math.sin(time * 1.10))
-        displacementA.current.setAttribute("scale", scale.toFixed(2))
+    // Handle resize
+    const handleResize = () => {
+      if (desktopCanvasRef.current && desktopSetupRef.current) {
+        const width = desktopCanvasRef.current.offsetWidth
+        const height = desktopCanvasRef.current.offsetHeight
+        desktopSetupRef.current.renderer.setSize(width, height)
+        desktopSetupRef.current.material.uniforms.uResolution.value.set(width, height)
       }
 
-      // Anime le filtre B
-      if (turbulenceB.current) {
-        const freqX = 0.008 + 0.018 * Math.cos(time * 1.3)
-        const freqY = 0.012 + 0.005 * Math.sin(time * 2.4)
-        turbulenceB.current.setAttribute("baseFrequency", `${freqX} ${freqY}`)
-        // Change seed aussi
-        if (Math.floor(time * 60) % 180 === 0) {
-          seedB = (seedB + 1) % 9999
-          turbulenceB.current.setAttribute("seed", seedB.toString())
-        }
+      if (mobileCanvasRef.current && mobileSetupRef.current) {
+        const width = mobileCanvasRef.current.offsetWidth
+        const height = mobileCanvasRef.current.offsetHeight
+        mobileSetupRef.current.renderer.setSize(width, height)
+        mobileSetupRef.current.material.uniforms.uResolution.value.set(width, height)
       }
-      if (displacementB.current) {
-        const scale = filterStrength * (4 + 6 * Math.cos(time * 1.22))
-        displacementB.current.setAttribute("scale", scale.toFixed(2))
-      }
-
-      // Switch de filtre toutes les SWITCH_INTERVAL secondes
-      if (time - lastSwitch > SWITCH_INTERVAL) {
-        setActiveFilter(f => (f === 'A' ? 'B' : 'A'))
-        lastSwitch = time
-      }
-
-      animationFrameId = requestAnimationFrame(animate)
     }
-    animationFrameId = requestAnimationFrame(animate)
+
+    window.addEventListener("resize", handleResize)
 
     return () => {
-      cancelAnimationFrame(animationFrameId)
-    }
-  }, [filterIdA, filterIdB, filterStrength, glitchEdges])
+      window.removeEventListener("resize", handleResize)
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current)
+      }
 
-  // Animated Letters (inchangé)
+      // Cleanup desktop
+      if (desktopSetupRef.current && desktopCanvasRef.current) {
+        desktopCanvasRef.current.innerHTML = ""
+        desktopSetupRef.current.renderer.dispose()
+      }
+
+      // Cleanup mobile
+      if (mobileSetupRef.current && mobileCanvasRef.current) {
+        mobileCanvasRef.current.innerHTML = ""
+        mobileSetupRef.current.renderer.dispose()
+      }
+    }
+  }, [imageUrl, imageMobileUrl])
+
+  // Animated Letters
   function AnimatedLetters({ text }: { text: string }) {
     return (
       <span className="inline-block">
@@ -169,9 +285,10 @@ export default function WavyCreationCard({
             whileInView={{ y: 0, opacity: 1 }}
             transition={{
               type: "spring",
-              stiffness: 220,
-              damping: 30,
+              stiffness: 200,
+              damping: 25,
               mass: 1,
+              delay: i * 0.02,
             }}
             viewport={{ once: true, amount: 0.7 }}
             className="inline-block"
@@ -180,64 +297,43 @@ export default function WavyCreationCard({
           </motion.span>
         ))}
       </span>
-    );
+    )
   }
 
-  // Utilisation du filtre dynamique !
-  const currentFilterId = activeFilter === 'A' ? filterIdA : filterIdB
-
   return (
-    <Link
-      key={section._id}
-      href={`/creation/${section.slug.current}`}
-      className="block group w-full"
-    >
+    <Link key={section._id} href={`/creation/${section.slug.current}`} className="block group w-full">
       {/* DESKTOP + TABLET */}
-      <div className="hidden md:flex flex-col items-center justify-center h-screen w-full snap-start">
-        <div className="flex flex-col items-center gap-0">
-          <span className="text-[14px] font-medium mb-0 text-black opacity-80 hidden sm:inline">
-            {index + 1}/{total}
+      <div className="hidden md:flex flex-col items-center justify-center h-screen w-full snap-start relative overflow-hidden">
+        {/* Background with WebGL Ripple Effect */}
+        <div className="absolute inset-0 w-full h-full z-0">
+          <div ref={desktopCanvasRef} className="w-full h-full opacity-80" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/40 transition-all duration-500" />
+        </div>
+
+        {/* Content overlay */}
+        <div className="relative z-10 flex flex-col items-center gap-0 px-6 max-w-6xl">
+          <span className="text-[16px] font-medium mb-4 text-white/70 hidden sm:inline tracking-wider">
+            {String(index + 1).padStart(2, "0")}/{String(total).padStart(2, "0")}
           </span>
-          <h2 className="text-[48px] font-bold font-clash leading-tight text-black text-center">
+          <h2 className="text-[200px] xl:text-[240px] font-bold font-clash leading-[0.85] text-white text-center">
             <AnimatedLetters text={section.title} />
           </h2>
-          <p className="text-[16px] font-normal text-black opacity-80 text-center mt-0 hidden sm:block">
+          <p className="text-[20px] font-light text-white/90 text-center mt-6 hidden sm:block max-w-3xl leading-relaxed">
             {section.description}
           </p>
         </div>
-        <div className="pt-4" style={{ marginTop: 16 }}>
-          {imageUrl && (
-            <div className="w-[340px] h-[430px] flex items-center justify-center rounded-[2px] overflow-hidden">
-              <img
-                src={imageUrl}
-                alt={section.title}
-                className="w-full h-full object-cover"
-                style={{
-                  filter: `url(#${currentFilterId})`,
-                }}
-              />
-            </div>
-          )}
-        </div>
       </div>
+
       {/* MOBILE */}
-      <div className="md:hidden w-full px-4 mb-4">
-        <div className="relative h-[400px] w-full overflow-hidden rounded-[2px]">
-          {imageMobileUrl && (
-            <img
-              src={imageMobileUrl}
-              alt={section.title}
-              className="w-full h-full object-cover absolute inset-0"
-              style={{
-                filter: `url(#${currentFilterId})`,
-              }}
-            />
-          )}
-          <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-colors duration-300 z-10" />
+      <div className="md:hidden w-full px-4 mb-6">
+        <div className="relative h-[600px] w-full overflow-hidden rounded-lg">
+          <div ref={mobileCanvasRef} className="w-full h-full" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/10 transition-all duration-500 z-10" />
           <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white text-center px-6">
-            <h2 className="text-4xl font-clash font-semibold leading-tight mb-2 relative">
+            <h2 className="text-[90px] sm:text-[110px] font-clash font-bold leading-[0.85] mb-4 relative">
               <span className="relative z-10">{section.title}</span>
             </h2>
+            <p className="text-[16px] font-light text-white/90 max-w-sm leading-relaxed">{section.description}</p>
           </div>
         </div>
       </div>

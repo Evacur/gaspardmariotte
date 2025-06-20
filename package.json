@@ -10,8 +10,8 @@
   },
   "dependencies": {
     "@portabletext/react": "^3.2.1",
-    "@sanity/image-url": "^1.1.0",
     "@sanity/icons": "^3.7.0",
+    "@sanity/image-url": "^1.1.0",
     "framer-motion": "^12.11.3",
     "keen-slider": "^6.8.6",
     "next": "^14.2.3",
@@ -20,7 +20,8 @@
     "react-dom": "^18.2.0",
     "react-is": "^18.2.0",
     "styled-components": "^6.1.18",
-    "tailwind-scrollbar-hide": "^2.0.0"
+    "tailwind-scrollbar-hide": "^2.0.0",
+    "three": "^0.177.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
