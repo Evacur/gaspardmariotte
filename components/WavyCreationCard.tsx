@@ -318,7 +318,7 @@ export default function WavyCreationCard({ section, index, total, filterStrength
           <span className="text-[16px] font-medium mb-4 text-white/70 hidden sm:inline tracking-wider">
             {String(index + 1).padStart(2, "0")}/{String(total).padStart(2, "0")}
           </span>
-          <h2 className="text-[200px] xl:text-[240px] font-bold font-clash leading-[0.85] text-white text-center">
+          <h2 className="text-[150px] xl:text-[150px] font-bold font-clash leading-[0.85] text-white text-center">
             <AnimatedLetters text={section.title} />
           </h2>
           <p className="text-[20px] font-light text-white/90 text-center mt-6 hidden sm:block max-w-3xl leading-relaxed">
@@ -333,10 +333,10 @@ export default function WavyCreationCard({ section, index, total, filterStrength
           <div ref={mobileCanvasRef} className="w-full h-full" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/10 transition-all duration-500 z-10" />
           <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white text-center px-6">
-            <h2 className="text-[90px] sm:text-[110px] font-clash font-bold leading-[0.85] mb-4 relative">
+            <h2 className="text-[40px] sm:text-[70px] font-clash font-bold leading-[0.85] mb-4 relative">
               <span className="relative z-10">{section.title}</span>
             </h2>
-            <p className="text-[16px] font-light text-white/90 max-w-sm leading-relaxed">{section.description}</p>
+            <p className="text-[24px] font-light text-white/90 max-w-sm leading-relaxed">{section.description}</p>
           </div>
         </div>
       </div>
