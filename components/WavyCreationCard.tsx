@@ -43,119 +43,122 @@ export default function WavyCreationCard({ section, index, total, filterStrength
 
   // Setup WebGL effect
   const setupRippleEffect = (container: HTMLDivElement, imageUrl: string): Promise<RippleSetup> => {
-    return new Promise((resolve) => {
-      // Scene setup
-      const scene = new THREE.Scene()
-      const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
+  return new Promise((resolve) => {
+    // Scene + camera
+    const scene = new THREE.Scene()
+    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
 
-      const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true })
-      renderer.setSize(container.offsetWidth, container.offsetHeight)
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true })
+    renderer.setSize(container.offsetWidth, container.offsetHeight)
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    container.appendChild(renderer.domElement)
 
-      container.appendChild(renderer.domElement)
+    // Load texture
+    const textureLoader = new THREE.TextureLoader()
+    textureLoader.load(imageUrl, (texture) => {
+      texture.wrapS = THREE.ClampToEdgeWrapping
+      texture.wrapT = THREE.ClampToEdgeWrapping
+      texture.minFilter = THREE.LinearFilter
+      texture.magFilter = THREE.LinearFilter
 
-      // Load texture
-      const textureLoader = new THREE.TextureLoader()
-      textureLoader.load(imageUrl, (texture) => {
-        texture.wrapS = THREE.ClampToEdgeWrapping
-        texture.wrapT = THREE.ClampToEdgeWrapping
-        texture.minFilter = THREE.LinearFilter
-        texture.magFilter = THREE.LinearFilter
+      // Aspect ratios
+      const imageAspect = texture.image.width / texture.image.height
+      const containerAspect = container.offsetWidth / container.offsetHeight
 
-        // Calculate aspect ratios
-        const imageAspect = texture.image.width / texture.image.height
-        const containerAspect = container.offsetWidth / container.offsetHeight
+      let planeWidth = 2
+      let planeHeight = 2
 
-        // Shader material
-        const material = new THREE.ShaderMaterial({
-          uniforms: {
-            uTexture: { value: texture },
-            uTime: { value: 0 },
-            uResolution: { value: new THREE.Vector2(container.offsetWidth, container.offsetHeight) },
-            uRipple1: { value: new THREE.Vector3(0.5, 0.5, 0) },
-            uRipple2: { value: new THREE.Vector3(0.3, 0.7, 0) },
-            uRipple3: { value: new THREE.Vector3(0.7, 0.3, 0) },
-          },
-          vertexShader: `
-            varying vec2 vUv;
-            void main() {
-              vUv = uv;
-              gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-            }
-          `,
-          fragmentShader: `
-  uniform sampler2D uTexture;
-  uniform float uTime;
-  uniform vec2 uResolution;
-  uniform vec3 uRipple1;
-  uniform vec3 uRipple2;
-  uniform vec3 uRipple3;
-  varying vec2 vUv;
+      // Cover logic: toujours remplir, quitte à cropper
+      if (containerAspect > imageAspect) {
+        // Container + large que l'image : on crop verticalement
+        planeWidth = 2
+        planeHeight = (2 / imageAspect) * containerAspect
+      } else {
+        // Container + haut que l'image : on crop horizontalement
+        planeHeight = 2
+        planeWidth = (2 * imageAspect) / containerAspect
+      }
 
-  float ripple(vec2 uv, vec3 rippleData) {
-    vec2 center = rippleData.xy;
-    float time = rippleData.z;
-    
-    float dist = distance(uv, center);
-    float rippleTime = uTime * 1.5 + time;
-    
-    float wave1 = sin(dist * 25.0 - rippleTime * 3.0) * 0.5 + 0.5;
-    float wave2 = sin(dist * 15.0 - rippleTime * 2.0) * 0.5 + 0.5;
-    float wave3 = sin(dist * 35.0 - rippleTime * 4.0) * 0.5 + 0.5;
-    
-    float falloff = 1.0 - smoothstep(0.0, 0.6, dist);
-    float timeFalloff = 1.0 - smoothstep(0.0, 8.0, rippleTime);
-    
-    return (wave1 * 0.4 + wave2 * 0.3 + wave3 * 0.3) * falloff * timeFalloff;
-  }
+      // Geometry + mesh
+      const geometry = new THREE.PlaneGeometry(planeWidth, planeHeight)
 
-  void main() {
-    vec2 uv = vUv;
-  
-  // Create multiple ripples
-  float ripple1Effect = ripple(uv, uRipple1);
-  float ripple2Effect = ripple(uv, uRipple2);
-  float ripple3Effect = ripple(uv, uRipple3);
-  
-  // Combine ripples
-  float totalRipple = ripple1Effect + ripple2Effect + ripple3Effect;
-  
-  // Add some base wave motion
-  float baseWave = sin(uv.x * 8.0 + uTime * 0.4) * sin(uv.y * 6.0 + uTime * 0.3) * 0.015;
-  
-  // Distort UV coordinates
-  vec2 distortedUV = uv + vec2(
-    sin(uv.y * 12.0 + uTime * 0.6) * 0.004,
-    cos(uv.x * 10.0 + uTime * 0.5) * 0.004
-  );
-  
-  distortedUV += (totalRipple + baseWave) * 0.015;
-  
-  // Use the distorted UVs directly without aspect ratio adjustment
-  vec4 color = texture2D(uTexture, distortedUV);
-  
-  // Add some shimmer effect
-  float shimmer = sin(uv.x * 40.0 + uTime * 1.5) * sin(uv.y * 25.0 + uTime * 1.2) * 0.08;
-  color.rgb += shimmer * 0.08;
-  
-  // Add ripple highlights
-  color.rgb += totalRipple * 0.08;
-  
-  gl_FragColor = color;
-}
-`,
-        })
+      const material = new THREE.ShaderMaterial({
+        uniforms: {
+          uTexture: { value: texture },
+          uTime: { value: 0 },
+          uResolution: { value: new THREE.Vector2(container.offsetWidth, container.offsetHeight) },
+          uRipple1: { value: new THREE.Vector3(0.5, 0.5, 0) },
+          uRipple2: { value: new THREE.Vector3(0.3, 0.7, 0) },
+          uRipple3: { value: new THREE.Vector3(0.7, 0.3, 0) },
+        },
+        vertexShader: `
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          uniform sampler2D uTexture;
+          uniform float uTime;
+          uniform vec2 uResolution;
+          uniform vec3 uRipple1;
+          uniform vec3 uRipple2;
+          uniform vec3 uRipple3;
+          varying vec2 vUv;
 
-        // Geometry
-        const geometry = new THREE.PlaneGeometry(2, 2)
-        const mesh = new THREE.Mesh(geometry, material)
-        scene.add(mesh)
+          float ripple(vec2 uv, vec3 rippleData) {
+            vec2 center = rippleData.xy;
+            float time = rippleData.z;
+            
+            float dist = distance(uv, center);
+            float rippleTime = uTime * 1.5 + time;
+            
+            float wave1 = sin(dist * 25.0 - rippleTime * 3.0) * 0.5 + 0.5;
+            float wave2 = sin(dist * 15.0 - rippleTime * 2.0) * 0.5 + 0.5;
+            float wave3 = sin(dist * 35.0 - rippleTime * 4.0) * 0.5 + 0.5;
+            
+            float falloff = 1.0 - smoothstep(0.0, 0.6, dist);
+            float timeFalloff = 1.0 - smoothstep(0.0, 8.0, rippleTime);
+            
+            return (wave1 * 0.4 + wave2 * 0.3 + wave3 * 0.3) * falloff * timeFalloff;
+          }
 
-        // Resolve with the setup
-        resolve({ scene, camera, renderer, material })
+          void main() {
+            vec2 uv = vUv;
+
+            float ripple1Effect = ripple(uv, uRipple1);
+            float ripple2Effect = ripple(uv, uRipple2);
+            float ripple3Effect = ripple(uv, uRipple3);
+
+            float totalRipple = ripple1Effect + ripple2Effect + ripple3Effect;
+
+            float baseWave = sin(uv.x * 8.0 + uTime * 0.4) * sin(uv.y * 6.0 + uTime * 0.3) * 0.015;
+            vec2 distortedUV = uv + vec2(
+              sin(uv.y * 12.0 + uTime * 0.6) * 0.004,
+              cos(uv.x * 10.0 + uTime * 0.5) * 0.004
+            );
+            distortedUV += (totalRipple + baseWave) * 0.015;
+
+            vec4 color = texture2D(uTexture, distortedUV);
+
+            float shimmer = sin(uv.x * 40.0 + uTime * 1.5) * sin(uv.y * 25.0 + uTime * 1.2) * 0.08;
+            color.rgb += shimmer * 0.08;
+            color.rgb += totalRipple * 0.08;
+
+            gl_FragColor = color;
+          }
+        `,
       })
+
+      const mesh = new THREE.Mesh(geometry, material)
+      scene.add(mesh)
+
+      resolve({ scene, camera, renderer, material })
     })
-  }
+  })
+}
+
 
   useEffect(() => {
     if (!imageUrl || !imageMobileUrl) return
