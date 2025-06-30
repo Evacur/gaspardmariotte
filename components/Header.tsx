@@ -1,38 +1,36 @@
 import { useState } from 'react'
 import Link from 'next/link'
+import clsx from 'clsx'
 import Logo from '@/components/Logo'
 import MobileMenu from '@/components/MobileMenu'
 
-// Définition du type des props
 type HeaderProps = {
   dark?: boolean
+  className?: string
 }
 
-export default function Header({ dark = false }: HeaderProps) {
+export default function Header({ dark = false, className = "" }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false)
 
-  const textColor = dark ? 'text-white' : 'text-black'
-  const bgColor = dark ? 'bg-transparent' : 'bg-white'
-  const logoColor = dark ? 'fill-white' : 'fill-black'
-  const iconStroke = dark ? '#ffffff' : '#000000'
-
   return (
-    <header className={`fixed top-0 w-full z-50 ${bgColor} ${textColor} px-6 py-4`}>
+    <header
+      className={clsx(
+        "fixed top-0 w-full z-50 px-6 py-4",
+        dark ? "bg-transparent text-white" : "bg-white text-black",
+        className
+      )}
+    >
       <div className="flex justify-between items-center">
-
-        {/* ✅ Logo affiché systématiquement */}
         <Link href="/" className="inline-block">
-          <Logo className={`w-auto h-3 sm:h-3 lg:h-3 xl:h-3 ${logoColor}`} />
+          <Logo className={clsx("w-auto h-3 sm:h-3 lg:h-3 xl:h-3", dark ? "fill-white" : "fill-black")} />
         </Link>
 
-        {/* Desktop menu */}
         <nav className="hidden xl:flex gap-6 text-sm font-medium justify-end">
           <Link href="/creation">Créations</Link>
           <Link href="/collaboration">Collaborations</Link>
           <Link href="/exposition">Expositions</Link>
         </nav>
 
-        {/* Mobile menu button */}
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="xl:hidden focus:outline-none"
@@ -42,7 +40,7 @@ export default function Header({ dark = false }: HeaderProps) {
             height="24"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
-            stroke={iconStroke}
+            stroke={dark ? "#ffffff" : "#000000"}
             strokeWidth="1.5"
           >
             <path d="M3 5h8" strokeLinecap="round" strokeLinejoin="round" />
@@ -52,7 +50,6 @@ export default function Header({ dark = false }: HeaderProps) {
         </button>
       </div>
 
-      {/* Menu mobile plein écran */}
       <MobileMenu isOpen={isOpen} onClose={() => setIsOpen(false)} />
     </header>
   )
