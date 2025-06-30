@@ -7,7 +7,10 @@ export default function VideoBlock({ video }: { video: any }) {
         src={video.asset.url}
         controls
         className="w-full h-full object-cover rounded-lg shadow"
-      />
+        title="Vidéo"
+      >
+        Votre navigateur ne supporte pas la lecture de cette vidéo.
+      </video>
     </div>
   )
 }

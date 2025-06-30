@@ -179,121 +179,93 @@ export default function WavyCreationCard({ section, index, total, filterStrength
 
 
   useEffect(() => {
-    if (!imageUrl || !imageMobileUrl) return
+  if (!imageUrl || !imageMobileUrl) return
 
-    const initializeEffects = async () => {
-      try {
-        // Setup desktop effect
-        if (desktopCanvasRef.current) {
-          const desktopSetup = await setupRippleEffect(desktopCanvasRef.current, imageUrl)
-          desktopSetupRef.current = desktopSetup
+  let animationId: number
+
+  const initializeEffects = async () => {
+    try {
+      if (desktopCanvasRef.current) {
+        desktopSetupRef.current = await setupRippleEffect(desktopCanvasRef.current, imageUrl)
+      }
+      if (mobileCanvasRef.current) {
+        mobileSetupRef.current = await setupRippleEffect(mobileCanvasRef.current, imageMobileUrl)
+      }
+
+      const animate = () => {
+        const time = performance.now() * 0.001
+
+        const updateMaterial = (setup?: RippleSetup) => {
+          if (!setup) return
+          const { material, renderer, scene, camera } = setup
+          material.uniforms.uTime.value = time
+
+          material.uniforms.uRipple1.value.z = Math.sin(time * 0.3) * 4.0
+          material.uniforms.uRipple2.value.z = Math.sin(time * 0.4 + 1.0) * 4.0
+          material.uniforms.uRipple3.value.z = Math.sin(time * 0.5 + 2.0) * 4.0
+
+          material.uniforms.uRipple1.value.x = 0.5 + Math.sin(time * 0.08) * 0.15
+          material.uniforms.uRipple1.value.y = 0.5 + Math.cos(time * 0.12) * 0.15
+
+          material.uniforms.uRipple2.value.x = 0.3 + Math.sin(time * 0.1 + 1.0) * 0.12
+          material.uniforms.uRipple2.value.y = 0.7 + Math.cos(time * 0.15 + 1.0) * 0.12
+
+          material.uniforms.uRipple3.value.x = 0.7 + Math.sin(time * 0.06 + 2.0) * 0.18
+          material.uniforms.uRipple3.value.y = 0.3 + Math.cos(time * 0.11 + 2.0) * 0.18
+
+          renderer.render(scene, camera)
         }
 
-        // Setup mobile effect
-        if (mobileCanvasRef.current) {
-          const mobileSetup = await setupRippleEffect(mobileCanvasRef.current, imageMobileUrl)
-          mobileSetupRef.current = mobileSetup
-        }
+        updateMaterial(desktopSetupRef.current)
+        updateMaterial(mobileSetupRef.current)
 
-        // Animation loop
-        const animate = () => {
-          const time = performance.now() * 0.001
-
-          // Update desktop effect
-          if (desktopSetupRef.current) {
-            const { material, renderer, scene, camera } = desktopSetupRef.current
-
-            material.uniforms.uTime.value = time
-
-            // Update ripple positions over time
-            material.uniforms.uRipple1.value.z = Math.sin(time * 0.3) * 4.0
-            material.uniforms.uRipple2.value.z = Math.sin(time * 0.4 + 1.0) * 4.0
-            material.uniforms.uRipple3.value.z = Math.sin(time * 0.5 + 2.0) * 4.0
-
-            // Slowly move ripple centers
-            material.uniforms.uRipple1.value.x = 0.5 + Math.sin(time * 0.08) * 0.15
-            material.uniforms.uRipple1.value.y = 0.5 + Math.cos(time * 0.12) * 0.15
-
-            material.uniforms.uRipple2.value.x = 0.3 + Math.sin(time * 0.1 + 1.0) * 0.12
-            material.uniforms.uRipple2.value.y = 0.7 + Math.cos(time * 0.15 + 1.0) * 0.12
-
-            material.uniforms.uRipple3.value.x = 0.7 + Math.sin(time * 0.06 + 2.0) * 0.18
-            material.uniforms.uRipple3.value.y = 0.3 + Math.cos(time * 0.11 + 2.0) * 0.18
-
-            renderer.render(scene, camera)
-          }
-
-          // Update mobile effect
-          if (mobileSetupRef.current) {
-            const { material, renderer, scene, camera } = mobileSetupRef.current
-
-            material.uniforms.uTime.value = time
-
-            material.uniforms.uRipple1.value.z = Math.sin(time * 0.3) * 4.0
-            material.uniforms.uRipple2.value.z = Math.sin(time * 0.4 + 1.0) * 4.0
-            material.uniforms.uRipple3.value.z = Math.sin(time * 0.5 + 2.0) * 4.0
-
-            material.uniforms.uRipple1.value.x = 0.5 + Math.sin(time * 0.08) * 0.15
-            material.uniforms.uRipple1.value.y = 0.5 + Math.cos(time * 0.12) * 0.15
-
-            material.uniforms.uRipple2.value.x = 0.3 + Math.sin(time * 0.1 + 1.0) * 0.12
-            material.uniforms.uRipple2.value.y = 0.7 + Math.cos(time * 0.15 + 1.0) * 0.12
-
-            material.uniforms.uRipple3.value.x = 0.7 + Math.sin(time * 0.06 + 2.0) * 0.18
-            material.uniforms.uRipple3.value.y = 0.3 + Math.cos(time * 0.11 + 2.0) * 0.18
-
-            renderer.render(scene, camera)
-          }
-
-          animationRef.current = requestAnimationFrame(animate)
-        }
-
-        animate()
-      } catch (error) {
-        console.error("Error initializing ripple effects:", error)
+        animationId = requestAnimationFrame(animate)
       }
+
+      animate()
+    } catch (error) {
+      console.error("Error initializing ripple effects:", error)
+    }
+  }
+
+  initializeEffects()
+
+  const handleResize = () => {
+    const updateSize = (setup?: RippleSetup, container?: HTMLDivElement) => {
+      if (!setup || !container) return
+      const width = container.offsetWidth
+      const height = container.offsetHeight
+      if (width === 0 || height === 0) return
+      setup.renderer.setSize(width, height)
+      setup.material.uniforms.uResolution.value.set(width, height)
     }
 
-    initializeEffects()
+    updateSize(desktopSetupRef.current, desktopCanvasRef.current!)
+    updateSize(mobileSetupRef.current, mobileCanvasRef.current!)
+  }
 
-    // Handle resize
-    const handleResize = () => {
-      if (desktopCanvasRef.current && desktopSetupRef.current) {
-        const width = desktopCanvasRef.current.offsetWidth
-        const height = desktopCanvasRef.current.offsetHeight
-        desktopSetupRef.current.renderer.setSize(width, height)
-        desktopSetupRef.current.material.uniforms.uResolution.value.set(width, height)
-      }
+  window.addEventListener("resize", handleResize)
 
-      if (mobileCanvasRef.current && mobileSetupRef.current) {
-        const width = mobileCanvasRef.current.offsetWidth
-        const height = mobileCanvasRef.current.offsetHeight
-        mobileSetupRef.current.renderer.setSize(width, height)
-        mobileSetupRef.current.material.uniforms.uResolution.value.set(width, height)
-      }
+  return () => {
+    window.removeEventListener("resize", handleResize)
+    if (animationId) cancelAnimationFrame(animationId)
+
+    // Cleanup desktop
+    if (desktopSetupRef.current && desktopCanvasRef.current) {
+      desktopCanvasRef.current.innerHTML = ""
+      desktopSetupRef.current.renderer.dispose()
+      desktopSetupRef.current = undefined
     }
 
-    window.addEventListener("resize", handleResize)
-
-    return () => {
-      window.removeEventListener("resize", handleResize)
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current)
-      }
-
-      // Cleanup desktop
-      if (desktopSetupRef.current && desktopCanvasRef.current) {
-        desktopCanvasRef.current.innerHTML = ""
-        desktopSetupRef.current.renderer.dispose()
-      }
-
-      // Cleanup mobile
-      if (mobileSetupRef.current && mobileCanvasRef.current) {
-        mobileCanvasRef.current.innerHTML = ""
-        mobileSetupRef.current.renderer.dispose()
-      }
+    // Cleanup mobile
+    if (mobileSetupRef.current && mobileCanvasRef.current) {
+      mobileCanvasRef.current.innerHTML = ""
+      mobileSetupRef.current.renderer.dispose()
+      mobileSetupRef.current = undefined
     }
-  }, [imageUrl, imageMobileUrl])
+  }
+}, [imageUrl, imageMobileUrl])
+
 
   // Animated Letters
   function AnimatedLetters({ text }: { text: string }) {

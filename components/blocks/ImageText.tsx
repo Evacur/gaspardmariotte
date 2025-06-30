@@ -12,13 +12,15 @@ export default function ImageText({
   title?: string
   text: any[]
 }) {
-  const ImageElement = (
+  const imageUrl = image?._type === 'image' && image.asset ? urlFor(image).url() : null
+
+  const ImageElement = imageUrl ? (
     <img
-      src={urlFor(image).url()}
+      src={imageUrl}
       className="w-full md:w-3/5 max-h-[500px] object-cover rounded-sm"
-      alt=""
+      alt={title || 'Image'}
     />
-  )
+  ) : null
 
   const TextElement = (
     <div className="w-full md:w-2/5 px-6 sm:px-4">
@@ -28,7 +30,6 @@ export default function ImageText({
       </div>
     </div>
   )
-
 
   return (
     <div className="flex flex-col md:flex-row gap-6 items-start max-w-screen-lg mx-auto">
