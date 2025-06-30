@@ -70,7 +70,7 @@ export default function ProjectBanner({ title, slug, banner, infoItems }: Props)
                   delay: (index + 1) * 0.2,
                   ease: [0.11, 0.68, 0.17, 0.99],
                 }}
-                className="max-w-[300px] min-w-[50px]"
+                className="max-w-[300px] min-w-120px]"
               >
                 <p className="font-semibold tracking-wide text-white">{label}</p>
                 <p className="break-words">{value || '—'}</p>
