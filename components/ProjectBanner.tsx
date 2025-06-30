@@ -27,13 +27,15 @@ export default function ProjectBanner({ title, slug, banner, infoItems }: Props)
       className="relative w-full h-[45vh] text-white overflow-hidden"
     >
       {/* Image de fond */}
-      {banner && (
+      {/* Image de fond */}
+      {banner?._type === 'image' && banner.asset && (
         <img
           src={urlFor(banner).url()}
-          alt={title}
+          alt={title || 'Image'}
           className="absolute inset-0 w-full h-full object-cover z-0"
         />
       )}
+
 
       {/* Overlay */}
       <div className="absolute inset-0 bg-black/50 z-10" />
