@@ -31,8 +31,26 @@ interface RippleSetup {
 }
 
 export default function WavyCreationCard({ section, index, total, filterStrength = 0.7, glitchEdges = false }: Props) {
-  const imageUrl = section.image ? urlFor(section.image).width(1200).height(1600).fit("crop").url() : null
-  const imageMobileUrl = section.image ? urlFor(section.image).width(1200).height(1200).fit("crop").url() : null
+  const imageUrl = section.image
+    ? urlFor(section.image)
+        .width(1200)
+        .height(1600)
+        .fit("crop")
+        .auto("format")
+        .quality(85)
+        .url()
+    : null
+
+  const imageMobileUrl = section.image
+    ? urlFor(section.image)
+        .width(1200)
+        .height(1200)
+        .fit("crop")
+        .auto("format")
+        .quality(85)
+        .url()
+    : null
+
 
   // WebGL refs
   const desktopCanvasRef = useRef<HTMLDivElement>(null)
