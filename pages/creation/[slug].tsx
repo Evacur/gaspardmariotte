@@ -48,7 +48,22 @@ export default function CreationSlugPage({ title, creations }: Props) {
             >
               {creation.image && (
                 <img
-                  src={urlFor(creation.image).width(500).height(500).fit('crop').url()}
+                  src={urlFor(creation.image)
+                    .width(500)
+                    .height(500)
+                    .fit('crop')
+                    .auto('format')
+                    .quality(85)
+                    .url()}
+                  srcSet={`
+                    ${urlFor(creation.image)
+                      .width(1000)
+                      .height(1000)
+                      .fit('crop')
+                      .auto('format')
+                      .quality(85)
+                      .url()} 2x
+                  `}
                   alt={creation.title}
                   className="w-full max-w-[500px] h-auto aspect-square object-cover rounded-sm"
                 />
