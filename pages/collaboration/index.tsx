@@ -5,6 +5,7 @@ import { client } from '@/lib/sanity'
 import { groq } from 'next-sanity'
 import Header from '@/components/Header'
 import SectionPosterCard from '@/components/SectionPosterCard'
+import ProjectNavCard from '@/components/ProjectNavCard' // <-- Import manquant
 
 type Collaboration = {
   _id: string
@@ -25,10 +26,30 @@ const query = groq`
 export default function CollaborationIndexPage() {
   const router = useRouter()
   const [collaborations, setCollaborations] = useState<Collaboration[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    client.fetch(query).then((data) => setCollaborations(data))
+    setLoading(true)
+    client.fetch(query)
+      .then((data) => {
+        setCollaborations(data)
+        setLoading(false)
+      })
+      .catch((err) => {
+        console.error(err)
+        setError('Erreur lors du chargement des collaborations.')
+        setLoading(false)
+      })
   }, [])
+
+  if (loading) {
+    return <div className="text-center mt-20">Chargement...</div>
+  }
+
+  if (error) {
+    return <div className="text-center mt-20 text-red-600">{error}</div>
+  }
 
   return (
     <motion.div
@@ -64,8 +85,10 @@ export default function CollaborationIndexPage() {
                     delay: 0.5 + index * 0.15,
                     ease: [0.5, 0.7, 0.17, 0.9],
                   }}
-                  className="w-full sm:w-full md:w-full lg:w-[250px] h-[300px]" // <-- Important !!
+                  className="w-full sm:w-full md:w-full lg:w-[250px] h-[300px]"
                 >
+                  {/* On affiche ici la carte de projet avec direction 'next' ou 'prev' uniquement dans la page détail */}
+                  {/* Ici sur index on peut juste afficher la carte avec lien simple */}
                   <SectionPosterCard
                     title={item.title}
                     slug={item.slug.current}

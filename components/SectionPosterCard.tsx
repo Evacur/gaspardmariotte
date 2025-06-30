@@ -1,45 +1,55 @@
 import Link from 'next/link'
 import { urlFor } from '@/lib/sanity'
 
-type Props = {
+interface ImageType {
+  _type: string
+  asset?: { _ref?: string; _id?: string }
+}
+
+interface ProjectNavCardProps {
   title: string
   slug: string
   banner?: any
   basePath?: 'exposition' | 'collaboration'
+  direction?: 'prev' | 'next'
 }
 
-export default function SectionPosterCard({ title, slug, banner, basePath = 'exposition' }: Props) {
-  let imageUrl = ''
-  try {
-    if (banner && banner.asset) {
-      imageUrl = urlFor(banner).width(600).height(800).fit('crop').url()
-    }
-  } catch (error) {
-    console.error('Erreur de génération d’image Sanity:', error)
-  }
+// Helper pour générer l'URL d'image en sécurité
+const getImageUrl = (image?: ImageType | null): string | null => {
+  return image?._type === 'image' && image.asset ? urlFor(image).url() : null
+}
 
+export default function ProjectNavCard({
+direction,
+  title,
+  slug,
+  banner,
+  basePath = 'exposition',
+}: ProjectNavCardProps) {
   const href = `/${basePath}/${slug}`
+  const imageUrl = getImageUrl(banner)
 
   return (
-    <Link
-      href={href}
-      scroll={false}
-      className="group relative w-full sm:w-full md:w-full lg:w-[250px] h-[300px] rounded-sm overflow-hidden bg-black flex items-center justify-center"
-    >
-      {imageUrl ? (
-        <img src={imageUrl} alt={title} className="w-full h-full object-cover" />
-      ) : (
-        <div className="text-red-700 bg-red-100 px-2 py-1 rounded text-center text-sm font-medium z-10">
-          Image manquante
+    <Link href={href} className="w-full h-[200px] rounded-sm overflow-hidden bg-gray-300" aria-label={`${direction === 'prev' ? 'Projet précédent' : 'Projet suivant'}`}>
+      <div className="relative w-full h-full group rounded-sm overflow-hidden">
+        {/* Image de fond si disponible */}
+        {imageUrl && (
+          <img
+            src={imageUrl}
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            alt={`${direction === 'prev' ? 'Image du projet précédent' : 'Image du projet suivant'}`}
+          />
+        )}
+
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition duration-300" />
+
+        {/* Texte centré */}
+        <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-4">
+          <span className="text-white text-xl sm:text-2xl font-clash font-semibold tracking-wide">
+            {direction === 'prev' ? 'Précédent' : 'Suivant'}
+          </span>
         </div>
-      )}
-
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black/50 group-hover:bg-black/60 transition-colors duration-300 z-10" />
-
-      {/* Texte */}
-      <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white text-center px-4">
-        <h2 className="text-xl font-clash font-semibold mb-1 max-w-full break-words">{title}</h2>
       </div>
     </Link>
   )

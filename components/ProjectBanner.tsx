@@ -14,12 +14,18 @@ type Props = {
   infoItems: InfoItem[]
 }
 
+// Helper pour retourner une URL uniquement si l'image est valide
+const getImageUrl = (image: any) => {
+  return image?._type === 'image' && image.asset ? urlFor(image).url() : null
+}
+
 export default function ProjectBanner({ title, slug, banner, infoItems }: Props) {
   const router = useRouter()
+  const imageUrl = getImageUrl(banner)
 
   return (
     <motion.div
-      key={router.asPath} // clé liée à la route pour forcer remount
+      key={router.asPath}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -27,15 +33,13 @@ export default function ProjectBanner({ title, slug, banner, infoItems }: Props)
       className="relative w-full h-[45vh] text-white overflow-hidden"
     >
       {/* Image de fond */}
-      {/* Image de fond */}
-      {banner?._type === 'image' && banner.asset && (
+      {imageUrl && (
         <img
-          src={urlFor(banner).url()}
+          src={imageUrl}
           alt={title || 'Image'}
           className="absolute inset-0 w-full h-full object-cover z-0"
         />
       )}
-
 
       {/* Overlay */}
       <div className="absolute inset-0 bg-black/50 z-10" />
@@ -43,7 +47,6 @@ export default function ProjectBanner({ title, slug, banner, infoItems }: Props)
       {/* Contenu aligné en bas */}
       <div className="relative z-20 h-full flex flex-col justify-end px-4 pb-4">
         <div className="w-full max-w-screen-lg mx-auto">
-          {/* Titre animé */}
           <motion.h1
             initial={{ opacity: 0, y: 300 }}
             animate={{ opacity: 1, y: 0 }}
@@ -56,7 +59,6 @@ export default function ProjectBanner({ title, slug, banner, infoItems }: Props)
             {title}
           </motion.h1>
 
-          {/* Infos dynamiques animées */}
           <div className="flex flex-wrap gap-x-4 gap-y-2 text-[12px] md:text-[14px] text-white/90">
             {infoItems.map(({ label, value }, index) => (
               <motion.div
