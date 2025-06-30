@@ -24,7 +24,10 @@ export default function ProjectNavCard({
   const imageUrl = getImageUrl(banner)
 
   return (
-    <Link href={href} className="w-full h-[200px] rounded-sm overflow-hidden bg-gray-300">
+    <Link
+      href={href}
+      className="w-full h-[150px] md:h-[200px] rounded-sm overflow-hidden bg-gray-300"
+    >
       <div className="relative w-full h-full group rounded-sm overflow-hidden">
         {imageUrl && (
           <img

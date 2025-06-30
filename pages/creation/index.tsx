@@ -26,6 +26,7 @@ const query = groq`
 
 export default function CreationMenuPage() {
   const [sections, setSections] = useState<CreationSection[]>([])
+  const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -39,9 +40,23 @@ export default function CreationMenuPage() {
     fetchData()
   }, [])
 
+  useEffect(() => {
+    // Détecter la largeur d'écran au chargement et lors du resize
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768) // breakpoint Tailwind md
+    }
+
+    checkIsMobile()
+    window.addEventListener("resize", checkIsMobile)
+
+    return () => {
+      window.removeEventListener("resize", checkIsMobile)
+    }
+  }, [])
+
   return (
     <div className="bg-white h-screen">
-      <Header dark={true} className="fixed top-0 left-0 w-full z-30" />
+      <Header dark={!isMobile} className="fixed top-0 left-0 w-full z-30" />
       <main className="pt-16 lg:snap-y lg:snap-mandatory lg:overflow-y-scroll h-screen">
         {sections.map((section, index) => (
           <WavyCreationCard
