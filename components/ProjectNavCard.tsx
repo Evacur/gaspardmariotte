@@ -26,7 +26,7 @@ export default function ProjectNavCard({
   return (
     <Link
       href={href}
-      className="w-full h-[150px] md:h-[200px] rounded-sm overflow-hidden bg-gray-300"
+      className="w-full min-h-[100px] h-[150px] md:h-[200px] rounded-sm overflow-hidden bg-gray-300"
     >
       <div className="relative w-full h-full group rounded-sm overflow-hidden">
         {imageUrl && (
