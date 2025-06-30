@@ -41,7 +41,7 @@ export default function CreationMenuPage() {
 
   return (
     <div className="bg-white h-screen">
-      <Header dark={false} className="fixed top-0 left-0 w-full z-30" />
+      <Header dark={true} className="fixed top-0 left-0 w-full z-30" />
       <main className="pt-16 lg:snap-y lg:snap-mandatory lg:overflow-y-scroll h-screen">
         {sections.map((section, index) => (
           <WavyCreationCard
