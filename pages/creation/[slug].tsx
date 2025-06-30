@@ -6,7 +6,8 @@ import Header from '@/components/Header'
 type Creation = {
   _id: string
   title: string
-  category: string
+  technique: string
+  format: string
   date: string
   image: any
 }
@@ -22,7 +23,8 @@ const query = groq`
     "creations": *[_type == "creation" && references(^._id)] | order(date desc){
       _id,
       title,
-      category,
+      technique,
+      format,
       date,
       image
     }
@@ -34,12 +36,10 @@ export default function CreationSlugPage({ title, creations }: Props) {
     <div className="bg-white">
       <Header dark={false} />
       <main className="min-h-screen flex md:items-start sm:items-center justify-center flex-col bg-white py-12">
-        {/* Titre avec espacement de 8px vers le carrousel */}
         <h1 className="md:text-6xl sm:text-2xl font-clash font-semibold mb-2 px-4">
           {title}
         </h1>
 
-        {/* Carrousel */}
         <div className="flex flex-col gap-6 md:flex-row md:gap-2 overflow-x-auto hide-scrollbar w-full px-4">
           {creations.map((creation) => (
             <div
@@ -56,8 +56,11 @@ export default function CreationSlugPage({ title, creations }: Props) {
               <div className="mt-2 flex flex-col gap-0">
                 <h2 className="text-sm md:text-base font-bold">{creation.title}</h2>
                 <p className="text-sm text-black/70 font-satoshi">
-                  <span className="font-semibold">{creation.category}</span>
-                  {creation.date && `, ${creation.date}`}
+                  {[
+                    creation.format,
+                    creation.technique,
+                    creation.date
+                  ].filter(Boolean).join(', ')}
                 </p>
               </div>
             </div>
