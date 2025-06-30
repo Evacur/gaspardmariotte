@@ -32,7 +32,7 @@ export default function ImageText({
   )
 
   return (
-    <div className="flex flex-col md:flex-row gap-6 items-start max-w-screen-lg mx-auto">
+    <div className="flex flex-col md:flex-row gap-6 items-center max-w-screen-lg mx-auto">
       {imagePosition === 'left' ? (
         <>
           {ImageElement}
