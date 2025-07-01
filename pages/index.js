@@ -19,7 +19,7 @@ export default function Home() {
         <Header dark={true} />
         <main className="flex-1 flex items-center justify-center text-white text-center px-4">
           <div>
-            <h1 className="text-4xl md:text-6xl font-clashgrotesk font-medium">
+            <h1 className="text-4xl md:text-6xl font-clashgrotesk font-black">
               Gaspard Mariotte
             </h1>
             <p className="mt-2 text-xl md:text-2xl font-satoshi">
