@@ -13,13 +13,11 @@ export default function ImageTriple({
   const bottomImageUrl = bottomImage?._type === 'image' && bottomImage.asset ? urlFor(bottomImage).url() : null
   const rightImageUrl = rightImage?._type === 'image' && rightImage.asset ? urlFor(rightImage).url() : null
 
-  // Comptage images à gauche pour gérer hauteur partagée
   const leftImagesCount = [topImageUrl, bottomImageUrl].filter(Boolean).length
   const leftImageHeightClass = leftImagesCount === 2 ? 'h-1/2' : 'h-full'
 
   return (
     <div className="flex flex-col md:flex-row gap-[25px] h-[700px] max-w-screen-lg mx-auto">
-      {/* Colonne gauche */}
       <div className="w-full md:w-1/2 flex flex-col gap-[25px] h-full">
         {topImageUrl ? (
           <div className={`${leftImageHeightClass} w-full overflow-hidden rounded-[2px]`}>
@@ -46,7 +44,6 @@ export default function ImageTriple({
         ) : null}
       </div>
 
-      {/* Colonne droite */}
       <div className="w-full md:w-1/2 h-full overflow-hidden rounded-[2px]">
         {rightImageUrl ? (
           <img

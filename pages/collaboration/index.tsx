@@ -74,7 +74,7 @@ export default function CollaborationIndexPage() {
 
         <div className="px-4 lg:px-0">
           <div className="w-full max-w-screen-xl mx-auto items-center">
-            <div className="flex flex-wrap gap-6 justify-center lg:justify-start">
+            <div className="flex flex-wrap gap-6 lg:justify-center xl:justify-start">
               {collaborations.map((item, index) => (
                 <motion.div
                   key={item._id}
@@ -85,10 +85,8 @@ export default function CollaborationIndexPage() {
                     delay: 0.5 + index * 0.15,
                     ease: [0.5, 0.7, 0.17, 0.9],
                   }}
-                  className="w-full sm:w-full md:w-full lg:w-[250px] h-[300px]"
+                  className="w-full md:w-1/3 lg:w-[250px] h-[300px]"
                 >
-                  {/* On affiche ici la carte de projet avec direction 'next' ou 'prev' uniquement dans la page détail */}
-                  {/* Ici sur index on peut juste afficher la carte avec lien simple */}
                   <SectionPosterCard
                     title={item.title}
                     slug={item.slug.current}
@@ -98,6 +96,7 @@ export default function CollaborationIndexPage() {
                 </motion.div>
               ))}
             </div>
+
           </div>
         </div>
       </main>

@@ -9,8 +9,6 @@ import ImageText from '@/components/blocks/ImageText'
 import ImageTriple from '@/components/blocks/ImageTriple'
 import VideoBlock from '@/components/blocks/VideoBlock'
 
-// Types
-
 type Collaboration = {
   title: string
   slug: { current: string }
@@ -28,8 +26,6 @@ type Props = {
   previousProject: Collaboration | null
   nextProject: Collaboration | null
 }
-
-// Component
 
 export default function CollaborationPage({ data, previousProject, nextProject }: Props) {
   return (
@@ -49,7 +45,6 @@ export default function CollaborationPage({ data, previousProject, nextProject }
         ]}
       />
 
-
       <main className="px-6 py-12 max-w-6xl mx-auto space-y-6">
         {data.sections?.map((block, index) => {
           switch (block._type) {
@@ -66,21 +61,20 @@ export default function CollaborationPage({ data, previousProject, nextProject }
           }
         })}
 
-        {/* Navigation vers projets suivant / précédent */}
         {(previousProject || nextProject) && (
-          <div className="w-full max-w-screen-lg mx-auto flex flex-col md:flex-row gap-[25px]">
+          <div className="w-full max-w-screen-lg mx-auto flex flex-col md:flex-row gap-4 md:gap-[25px]">
             {previousProject && previousProject.slug?.current && (
-              <div className="w-full md:w-1/2 h-[200px]">
+              <div className="w-full md:w-1/2 h-[150px] md:h-[200px]">
                 <ProjectNavCard
                   direction="prev"
                   slug={previousProject.slug.current}
                   banner={previousProject.banner}
-                  basePath="collaboration" // 👈 ici
+                  basePath="collaboration"
                 />
               </div>
             )}
             {nextProject && nextProject.slug?.current && (
-              <div className="w-full md:w-1/2 h-[200px]">
+              <div className="w-full md:w-1/2 h-[150px] md:h-[200px]">
                 <ProjectNavCard
                   direction="next"
                   slug={nextProject.slug.current}
@@ -90,15 +84,13 @@ export default function CollaborationPage({ data, previousProject, nextProject }
               </div>
             )}
           </div>
+
         )}
-
-
       </main>
     </div>
   )
 }
 
-// Routes dynamiques
 export const getStaticPaths: GetStaticPaths = async () => {
   const slugs = await client.fetch(groq`*[_type == "collaboration" && defined(slug.current)]{ slug }`)
   return {
@@ -107,11 +99,9 @@ export const getStaticPaths: GetStaticPaths = async () => {
   }
 }
 
-// Données de la page
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { slug } = params as { slug: string }
 
-  // Récupère tous les projets pour calculer le next / prev
   const allProjects: Collaboration[] = await client.fetch(
     groq`*[_type == "collaboration"] | order(annee desc) {
       title,

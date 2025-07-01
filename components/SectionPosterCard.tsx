@@ -34,10 +34,8 @@ export default function SectionPosterCard({ title, slug, banner, basePath = 'exp
         </div>
       )}
 
-      {/* Overlay */}
       <div className="absolute inset-0 bg-black/50 group-hover:bg-black/60 transition-colors duration-300 z-10" />
 
-      {/* Texte */}
       <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white text-center px-4">
         <h2 className="text-xl font-clash font-semibold mb-1 max-w-full break-words">{title}</h2>
       </div>

@@ -32,7 +32,6 @@ export default function ProjectBanner({ title, slug, banner, infoItems }: Props)
       transition={{ duration: 0.5 }}
       className="relative w-full h-[45vh] text-white overflow-hidden"
     >
-      {/* Image de fond */}
       {imageUrl && (
         <img
           src={imageUrl}
@@ -41,10 +40,8 @@ export default function ProjectBanner({ title, slug, banner, infoItems }: Props)
         />
       )}
 
-      {/* Overlay */}
       <div className="absolute inset-0 bg-black/50 z-10" />
 
-      {/* Contenu aligné en bas */}
       <div className="relative z-20 h-full flex flex-col justify-end px-4 pb-4">
         <div className="w-full max-w-screen-lg mx-auto">
           <motion.h1

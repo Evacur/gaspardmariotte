@@ -33,7 +33,7 @@ export default function Header({ dark = false, className = "" }: HeaderProps) {
 
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="xl:hidden focus:outline-none"
+          className="xl:hidden focus:outline-none p-4"
         >
           <svg
             width="24"

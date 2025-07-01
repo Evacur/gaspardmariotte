@@ -3,7 +3,6 @@ import Header from '@/components/Header'
 export default function Home() {
   return (
     <div className="relative h-screen w-full overflow-hidden">
-      {/* Vidéo en fond */}
       <video
         className="absolute top-0 left-0 w-full h-full object-cover z-"
         src="videos/video.mp4"
@@ -12,11 +11,9 @@ export default function Home() {
         muted
         playsInline
         preload="auto"
-        poster="/images/video-placeholder.jpg" // ✅ image affichée pendant le chargement
+        poster="/images/video-placeholder.jpg" 
       />
-      {/* Overlay noir transparent */}
       <div className="absolute top-0 left-0 w-full h-full bg-black/40 z-10" />
-      {/* Contenu au-dessus */}
       <div className="relative z-10 flex flex-col h-full">
         <Header dark={true} />
         <main className="flex-1 flex items-center justify-center text-white text-center px-4">

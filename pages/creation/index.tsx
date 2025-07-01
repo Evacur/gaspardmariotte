@@ -41,18 +41,18 @@ export default function CreationMenuPage() {
   }, [])
 
   useEffect(() => {
-    // Détecter la largeur d'écran au chargement et lors du resize
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 768) // breakpoint Tailwind md
-    }
+  const checkIsMobile = () => {
+    setIsMobile(window.innerWidth < 600) 
+  }
 
-    checkIsMobile()
-    window.addEventListener("resize", checkIsMobile)
+  checkIsMobile()
+  window.addEventListener("resize", checkIsMobile)
 
-    return () => {
-      window.removeEventListener("resize", checkIsMobile)
-    }
-  }, [])
+  return () => {
+    window.removeEventListener("resize", checkIsMobile)
+  }
+}, [])
+
 
   return (
     <div className="bg-white h-screen">

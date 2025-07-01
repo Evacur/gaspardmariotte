@@ -12,7 +12,6 @@ export default function ImageDuo({
 
   return (
     <div className="flex flex-col md:flex-row gap-[25px] h-[700px] max-w-screen-lg mx-auto">
-      {/* Image gauche */}
       <div className="w-full md:w-1/2 h-full overflow-hidden rounded-[2px]">
         {leftImageUrl ? (
           <img
@@ -25,7 +24,6 @@ export default function ImageDuo({
         )}
       </div>
 
-      {/* Image droite */}
       <div className="w-full md:w-1/2 h-full overflow-hidden rounded-[2px]">
         {rightImageUrl ? (
           <img

@@ -9,7 +9,6 @@ import ImageText from '@/components/blocks/ImageText'
 import ImageTriple from '@/components/blocks/ImageTriple'
 import VideoBlock from '@/components/blocks/VideoBlock'
 
-// Types
 type Exposition = {
   title: string
   slug: { current: string }
@@ -26,7 +25,6 @@ type Props = {
   nextProject: Exposition | null
 }
 
-// Component
 export default function ExpositionPage({ data, previousProject, nextProject }: Props) {
   return (
     <div className="bg-white">
@@ -75,9 +73,9 @@ export default function ExpositionPage({ data, previousProject, nextProject }: P
         })}
 
         {(previousProject || nextProject) && (
-          <div className="w-full max-w-screen-lg mx-auto flex flex-col md:flex-row h-[200px] gap-[25px]">
+          <div className="w-full max-w-screen-lg mx-auto flex flex-col md:flex-row gap-4 md:gap-[25px]">
             {previousProject?.slug?.current && (
-              <div className="w-full md:w-1/2">
+              <div className="w-full md:w-1/2 h-[150px] md:h-[200px]">
                 <ProjectNavCard
                   direction="prev"
                   slug={previousProject.slug.current}
@@ -87,7 +85,7 @@ export default function ExpositionPage({ data, previousProject, nextProject }: P
               </div>
             )}
             {nextProject?.slug?.current && (
-              <div className="w-full md:w-1/2">
+              <div className="w-full md:w-1/2 h-[150px] md:h-[200px]">
                 <ProjectNavCard
                   direction="next"
                   slug={nextProject.slug.current}
@@ -103,22 +101,19 @@ export default function ExpositionPage({ data, previousProject, nextProject }: P
   )
 }
 
-// Routes dynamiques
 export const getStaticPaths: GetStaticPaths = async () => {
   const slugs = await client.fetch(
     groq`*[_type == "exposition" && defined(slug.current)]{ slug }`
   )
   return {
     paths: slugs.map(({ slug }: any) => ({ params: { slug: slug.current } })),
-    fallback: 'blocking', // 🚀
+    fallback: 'blocking',
   }
 }
 
-// Données de la page
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { slug } = params as { slug: string }
 
-  // Pour navigation next/prev
   const allProjects: Exposition[] = await client.fetch(
     groq`*[_type == "exposition"] | order(date desc) {
       title,
@@ -131,7 +126,6 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const previousProject = allProjects[index - 1] || null
   const nextProject = allProjects[index + 1] || null
 
-  // Les données complètes
   const data = await client.fetch(
     groq`*[_type == "exposition" && slug.current == $slug][0] {
       title,
