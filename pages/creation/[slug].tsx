@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { GetStaticPaths, GetStaticProps } from 'next'
 import { groq } from 'next-sanity'
 import { client, urlFor } from '@/lib/sanity'
@@ -34,36 +34,33 @@ const query = groq`
 
 export default function CreationSlugPage({ title, creations }: Props) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkIsMobile = () => setIsMobile(window.innerWidth < 600)
+    checkIsMobile()
+    window.addEventListener("resize", checkIsMobile)
+    return () => window.removeEventListener("resize", checkIsMobile)
+  }, [])
 
   return (
     <div className="bg-white">
-      <Header dark={false} />
-      <main className="min-h-screen flex md:items-start sm:items-center justify-center flex-col bg-white py-12">
-        <h1 className="md:text-6xl sm:text-2xl font-clash font-semibold mb-2 px-4">
+      <Header dark={false} className="fixed top-0 left-0 w-full z-30" />
+
+      <main className={`${isMobile ? 'pt-20' : 'pt-16'} min-h-screen flex md:items-start sm:items-center justify-center flex-col bg-white py-12`}>
+        <h1 className="md:text-6xl sm:text-2xl font-clashgrotesk font-black mb-2 px-4">
           {title}
         </h1>
 
         <div className="flex flex-col gap-6 md:flex-row md:gap-2 overflow-x-auto hide-scrollbar w-full px-4">
           {creations.map((creation) => {
             const thumbnailUrl = urlFor(creation.image)
-              .width(500)
-              .height(500)
-              .fit('crop')
-              .auto('format')
-              .quality(85)
-              .url()
-
+              .width(500).height(500).fit('crop').auto('format').quality(85).url()
             const fullImageUrl = urlFor(creation.image)
-              .width(1600) 
-              .auto('format')
-              .quality(85)
-              .url()
+              .width(1600).auto('format').quality(85).url()
 
             return (
-              <div
-                key={creation._id}
-                className="flex-shrink-0 flex flex-col items-start w-full md:w-[500px]"
-              >
+              <div key={creation._id} className="flex-shrink-0 flex flex-col items-start w-full md:w-[500px]">
                 {creation.image && (
                   <img
                     src={thumbnailUrl}
@@ -76,11 +73,7 @@ export default function CreationSlugPage({ title, creations }: Props) {
                 <div className="mt-2 flex flex-col gap-0">
                   <h2 className="text-sm md:text-base font-bold">{creation.title}</h2>
                   <p className="text-sm text-black/70 font-satoshi">
-                    {[
-                      creation.format,
-                      creation.technique,
-                      creation.date
-                    ].filter(Boolean).join(', ')}
+                    {[creation.format, creation.technique, creation.date].filter(Boolean).join(', ')}
                   </p>
                 </div>
               </div>

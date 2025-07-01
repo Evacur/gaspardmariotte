@@ -41,23 +41,16 @@ export default function CreationMenuPage() {
   }, [])
 
   useEffect(() => {
-  const checkIsMobile = () => {
-    setIsMobile(window.innerWidth < 600) 
-  }
-
-  checkIsMobile()
-  window.addEventListener("resize", checkIsMobile)
-
-  return () => {
-    window.removeEventListener("resize", checkIsMobile)
-  }
-}, [])
-
+    const checkIsMobile = () => setIsMobile(window.innerWidth < 600)
+    checkIsMobile()
+    window.addEventListener("resize", checkIsMobile)
+    return () => window.removeEventListener("resize", checkIsMobile)
+  }, [])
 
   return (
-    <div className="bg-white h-screen">
+    <div className="bg-white min-h-screen">
       <Header dark={!isMobile} className="fixed top-0 left-0 w-full z-30" />
-      <main className="pt-16 lg:snap-y lg:snap-mandatory lg:overflow-y-scroll h-screen">
+      <main className="pt-24 lg:snap-y lg:snap-mandatory lg:overflow-y-scroll lg:h-screen">
         {sections.map((section, index) => (
           <WavyCreationCard
             key={section._id}
