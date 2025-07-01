@@ -4,7 +4,7 @@ import { useRouter } from 'next/router'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useState, useRef } from 'react'
 
-const DURATION = 0.5 // Durée de la montée/descente en secondes
+const DURATION = 0.5 
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
@@ -16,7 +16,7 @@ export default function App({ Component, pageProps }: AppProps) {
     const handleStart = (url: string) => {
       if (url === router.asPath) return;
       setIsAnimating(true);
-      setShowContent(false); // Cache le contenu immédiatement
+      setShowContent(false); 
       setPendingRoute(url);
     };
     router.events.on('routeChangeStart', handleStart);
@@ -24,17 +24,17 @@ export default function App({ Component, pageProps }: AppProps) {
     return () => {
       router.events.off('routeChangeStart', handleStart);
     };
-    // eslint-disable-next-line
+   
   }, [router.asPath]);
 
-  // Quand la transition est finie, affiche la nouvelle page
+
   useEffect(() => {
     if (!isAnimating || !pendingRoute) return;
-    // Attend la durée cover + reveal AVANT d'afficher le contenu
+   
     const timeout = setTimeout(() => {
       setIsAnimating(false);
       setPendingRoute(null);
-      setShowContent(true); // On affiche le contenu APRÈS la transition
+      setShowContent(true); 
     }, DURATION * 1000 * 2);
     return () => clearTimeout(timeout);
   }, [isAnimating, pendingRoute]);

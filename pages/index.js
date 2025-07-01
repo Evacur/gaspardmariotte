@@ -11,7 +11,7 @@ export default function Home() {
         muted
         playsInline
         preload="auto"
-        poster="/images/video-placeholder.jpg"
+        poster="/images/video-placeholder.png"
       />
       <div className="absolute top-0 left-0 w-full h-full bg-black/40 z-10" />
 
