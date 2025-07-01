@@ -4,26 +4,30 @@ export default function Home() {
   return (
     <div className="relative h-screen w-full overflow-hidden">
       <video
-        className="absolute top-0 left-0 w-full h-full object-cover z-"
+        className="absolute top-0 left-0 w-full h-full object-cover z-0"
         src="videos/video.mp4"
         autoPlay
         loop
         muted
         playsInline
         preload="auto"
-        poster="/images/video-placeholder.jpg" 
+        poster="/images/video-placeholder.jpg"
       />
       <div className="absolute top-0 left-0 w-full h-full bg-black/40 z-10" />
-      <div className="relative z-10 flex flex-col h-full">
+
+      <div className="relative z-20 flex flex-col h-full">
         <Header dark={true} />
         <main className="flex-1 flex items-center justify-center text-white text-center px-4">
           <div>
-            <h1 className="text-4xl font-clash font-medium">Gaspard Mariotte</h1>
-            <p className="mt-2 text-xl font-satoshi">Artiste peintre muraliste</p>
+            <h1 className="text-4xl md:text-6xl font-clashgrotesk font-medium">
+              Gaspard Mariotte
+            </h1>
+            <p className="mt-2 text-xl md:text-2xl font-satoshi">
+              Artiste peintre muraliste
+            </p>
           </div>
         </main>
       </div>
     </div>
   )
 }
-
