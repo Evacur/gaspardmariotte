@@ -14,22 +14,12 @@ export default function Footer({ dark = false, className = "" }: FooterProps) {
         className
       )}
     >
-      <div className="flex justify-between items-center text-sm font-medium">
-        <a 
-          href="https://instagram.com/gaspardmariotte" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="hover:opacity-70 transition-opacity"
-        >
-          @gaspardmariotte
-        </a>
+      <div className="flex justify-start items-start text-sm font-medium">
+
         
-        <a 
-          href="mailto:gaspardmariotte@gmail.com"
-          className="hover:opacity-70 transition-opacity"
-        >
-          gaspardmariotte@gmail.com
-        </a>
+        <div>
+          © 2025
+        </div>
       </div>
     </footer>
   )

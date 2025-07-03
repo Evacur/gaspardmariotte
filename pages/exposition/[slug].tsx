@@ -3,7 +3,7 @@ import { groq } from 'next-sanity'
 import { client } from '@/lib/sanity'
 import Header from '@/components/Header'
 import ProjectBanner from '@/components/ProjectBanner'
-import ProjectNavCard from '@/components/ProjectNavCard'
+import { ProjectNavContainer } from '@/components/ProjectNavCard' // Import du container
 import ImageDuo from '@/components/blocks/ImageDuo'
 import ImageText from '@/components/blocks/ImageText'
 import ImageTriple from '@/components/blocks/ImageTriple'
@@ -41,7 +41,7 @@ export default function ExpositionPage({ data, previousProject, nextProject }: P
         ]}
       />
 
-      <main className="px-6 py-12 max-w-6xl mx-auto space-y-6">
+      <main className="px-6 py-6 max-w-6xl mx-auto space-y-6">
         {data.sections?.map((block, index) => {
           switch (block._type) {
             case 'videoBlock':
@@ -72,28 +72,22 @@ export default function ExpositionPage({ data, previousProject, nextProject }: P
           }
         })}
 
+        {/* Navigation avec le nouveau container */}
         {(previousProject || nextProject) && (
-          <div className="w-full max-w-screen-lg mx-auto flex flex-col md:flex-row gap-4 md:gap-[25px]">
-            {previousProject?.slug?.current && (
-              <div className="w-full md:w-1/2 h-[150px] md:h-[200px]">
-                <ProjectNavCard
-                  direction="prev"
-                  slug={previousProject.slug.current}
-                  banner={previousProject.banner}
-                  basePath="exposition"
-                />
-              </div>
-            )}
-            {nextProject?.slug?.current && (
-              <div className="w-full md:w-1/2 h-[150px] md:h-[200px]">
-                <ProjectNavCard
-                  direction="next"
-                  slug={nextProject.slug.current}
-                  banner={nextProject.banner}
-                  basePath="exposition"
-                />
-              </div>
-            )}
+          <div className="w-full max-w-screen-lg mx-auto">
+            <ProjectNavContainer
+              prevProject={previousProject ? {
+                slug: previousProject.slug.current,
+                banner: previousProject.banner,
+                title: previousProject.title
+              } : undefined}
+              nextProject={nextProject ? {
+                slug: nextProject.slug.current,
+                banner: nextProject.banner,
+                title: nextProject.title
+              } : undefined}
+              basePath="exposition"
+            />
           </div>
         )}
       </main>

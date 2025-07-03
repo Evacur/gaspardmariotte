@@ -7,6 +7,7 @@ interface ProjectNavCardProps {
   banner?: any
   basePath?: 'exposition' | 'collaboration'
   title?: string
+  isAlone?: boolean // Nouvelle prop pour savoir si la carte est seule
 }
 
 const getImageUrl = (image: any) => {
@@ -19,13 +20,17 @@ export default function ProjectNavCard({
   banner,
   basePath = 'exposition',
   title,
+  isAlone = false,
 }: ProjectNavCardProps) {
   const href = `/${basePath}/${slug}`
   const imageUrl = getImageUrl(banner)
 
   return (
     <Link href={href} legacyBehavior>
-      <a className="w-full h-[150px] md:h-[200px] rounded-sm overflow-hidden bg-gray-300 block group relative">
+      <a className={`
+        h-[150px] rounded-sm overflow-hidden bg-gray-300 block group relative
+        ${isAlone ? 'w-full' : 'w-full flex-1 min-w-0'}
+      `}>
         {imageUrl && (
           <img
             src={imageUrl}
@@ -42,5 +47,60 @@ export default function ProjectNavCard({
         </div>
       </a>
     </Link>
+  )
+}
+
+// Composant container pour gérer la logique d'affichage
+interface ProjectNavContainerProps {
+  prevProject?: {
+    slug: string
+    banner?: any
+    title?: string
+  }
+  nextProject?: {
+    slug: string
+    banner?: any
+    title?: string
+  }
+  basePath?: 'exposition' | 'collaboration'
+}
+
+export function ProjectNavContainer({
+  prevProject,
+  nextProject,
+  basePath = 'exposition'
+}: ProjectNavContainerProps) {
+  const hasBothProjects = prevProject && nextProject
+  const hasOnlyOne = (prevProject && !nextProject) || (!prevProject && nextProject)
+
+  return (
+    <div className="w-full">
+      <div className={`
+        flex gap-4 md:gap-6 w-full
+        ${hasOnlyOne ? 'justify-center' : 'justify-between'}
+      `}>
+        {prevProject && (
+          <ProjectNavCard
+            direction="prev"
+            slug={prevProject.slug}
+            banner={prevProject.banner}
+            title={prevProject.title}
+            basePath={basePath}
+            isAlone={!nextProject}
+          />
+        )}
+        
+        {nextProject && (
+          <ProjectNavCard
+            direction="next"
+            slug={nextProject.slug}
+            banner={nextProject.banner}
+            title={nextProject.title}
+            basePath={basePath}
+            isAlone={!prevProject}
+          />
+        )}
+      </div>
+    </div>
   )
 }
