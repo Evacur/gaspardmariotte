@@ -33,23 +33,24 @@ interface RippleSetup {
 export default function WavyCreationCard({ section, index, total, filterStrength = 0.7, glitchEdges = false }: Props) {
   const imageUrl = section.image
     ? urlFor(section.image)
-      .width(1200)
-      .height(1600)
+      .width(2400)
+      .height(3200)
       .fit("crop")
       .auto("format")
-      .quality(85)
+      .quality(90)
       .url()
     : null
 
   const imageMobileUrl = section.image
     ? urlFor(section.image)
-      .width(1200)
-      .height(1200)
+      .width(1600)
+      .height(1600)
       .fit("crop")
       .auto("format")
-      .quality(85)
+      .quality(90)
       .url()
     : null
+
 
 
   const desktopCanvasRef = useRef<HTMLDivElement>(null)
@@ -72,8 +73,9 @@ export default function WavyCreationCard({ section, index, total, filterStrength
       textureLoader.load(imageUrl, (texture) => {
         texture.wrapS = THREE.ClampToEdgeWrapping
         texture.wrapT = THREE.ClampToEdgeWrapping
-        texture.minFilter = THREE.LinearFilter
+        texture.minFilter = THREE.LinearMipMapLinearFilter
         texture.magFilter = THREE.LinearFilter
+
 
         const imageAspect = texture.image.width / texture.image.height
         const containerAspect = container.offsetWidth / container.offsetHeight
