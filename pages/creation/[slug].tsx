@@ -56,15 +56,17 @@ export default function CreationSlugPage({ title, creations }: Props) {
           {creations.map((creation) => {
             const thumbnailUrl = urlFor(creation.image)
               .width(500).height(500).fit('crop').auto('format').quality(85).url()
+            const thumbnailUrl2x = urlFor(creation.image)
+              .width(1000).height(1000).fit('crop').auto('format').quality(85).url()
             const fullImageUrl = urlFor(creation.image)
-              .width(1600).auto('format').quality(85).url()
+              .width(2000).auto('format').quality(90).url()
 
             return (
               <div key={creation._id} className="flex-shrink-0 flex flex-col items-start w-full md:w-[500px]">
                 {creation.image && (
                   <img
                     src={thumbnailUrl}
-                    srcSet={`${thumbnailUrl} 2x`}
+                    srcSet={`${thumbnailUrl} 1x, ${thumbnailUrl2x} 2x`}
                     alt={creation.title}
                     className="w-full max-w-[500px] h-auto aspect-square object-cover rounded-sm cursor-pointer"
                     onClick={() => setSelectedImage(fullImageUrl)}

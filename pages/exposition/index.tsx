@@ -71,9 +71,9 @@ export default function ExpositionIndexPage() {
           Expositions
         </motion.h1>
 
-        <div className="px-4 lg:px-0">
-          <div className="w-full max-w-screen-xl mx-auto items-center">
-            <div className="flex flex-wrap gap-6 lg:justify-center xl:justify-start">
+        <div className="px-4 sm:px-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            
               {expositions.map((item, index) => (
                 <motion.div
                   key={item._id}
@@ -84,7 +84,7 @@ export default function ExpositionIndexPage() {
                     delay: 0.5 + index * 0.15,
                     ease: [0.5, 0.7, 0.17, 0.9],
                   }}
-                  className="w-full md:w-1/3 lg:w-[250px] h-[300px]"
+                  className="w-full h-[300px] "
                 >
                   <SectionPosterCard
                     title={item.title}
@@ -94,7 +94,6 @@ export default function ExpositionIndexPage() {
                   />
                 </motion.div>
               ))}
-            </div>
           </div>
         </div>
       </main>
