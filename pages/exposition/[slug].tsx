@@ -3,6 +3,7 @@ import { groq } from 'next-sanity'
 import { client } from '@/lib/sanity'
 import Header from '@/components/Header'
 import ProjectBanner from '@/components/ProjectBanner'
+import PageContent from '@/components/PageContent'
 import { ProjectNavContainer } from '@/components/ProjectNavCard' // Import du container
 import ImageDuo from '@/components/blocks/ImageDuo'
 import ImageText from '@/components/blocks/ImageText'
@@ -34,6 +35,7 @@ export default function ExpositionPage({ data, previousProject, nextProject }: P
         title={data.title}
         slug={data.slug.current}
         banner={data.banner}
+        basePath="exposition"
         infoItems={[
           { label: 'Date', value: data.date?.slice(0, 4) },
           { label: 'Lieu', value: data.lieu },
@@ -41,7 +43,7 @@ export default function ExpositionPage({ data, previousProject, nextProject }: P
         ]}
       />
 
-      <main className="px-6 py-6 max-w-6xl mx-auto space-y-6">
+      <PageContent className="px-6 py-6 max-w-6xl mx-auto space-y-6">
         {data.sections?.map((block, index) => {
           switch (block._type) {
             case 'videoBlock':
@@ -90,7 +92,7 @@ export default function ExpositionPage({ data, previousProject, nextProject }: P
             />
           </div>
         )}
-      </main>
+      </PageContent>
     </div>
   )
 }

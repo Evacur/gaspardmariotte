@@ -25,7 +25,7 @@ export default function Header({ dark = false, className = "" }: HeaderProps) {
           <Logo className={clsx("w-auto h-3 sm:h-3 lg:h-3 xl:h-3", dark ? "fill-white" : "fill-black")} />
         </Link>
 
-        <nav className="hidden xl:flex gap-6 text-sm font-medium justify-end">
+        <nav className="hidden lg:flex gap-6 text-sm font-medium justify-end">
           <Link href="/creation">Créations</Link>
           <Link href="/collaboration">Collaborations</Link>
           <Link href="/exposition">Expositions</Link>
@@ -33,7 +33,7 @@ export default function Header({ dark = false, className = "" }: HeaderProps) {
 
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="xl:hidden focus:outline-none p-4"
+          className="lg:hidden focus:outline-none p-4"
         >
           <svg
             width="24"
@@ -50,7 +50,9 @@ export default function Header({ dark = false, className = "" }: HeaderProps) {
         </button>
       </div>
 
-      <MobileMenu isOpen={isOpen} onClose={() => setIsOpen(false)} />
+      <div className="lg:hidden">
+        <MobileMenu isOpen={isOpen} onClose={() => setIsOpen(false)} />
+      </div>
     </header>
   )
 }

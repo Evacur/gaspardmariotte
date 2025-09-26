@@ -1,6 +1,4 @@
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
-import { motion } from 'framer-motion'
 import { client } from '@/lib/sanity'
 import { groq } from 'next-sanity'
 import Header from '@/components/Header'
@@ -23,7 +21,6 @@ const query = groq`
 `
 
 export default function ExpositionIndexPage() {
-  const router = useRouter()
   const [expositions, setExpositions] = useState<Exposition[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -51,52 +48,32 @@ export default function ExpositionIndexPage() {
   }
 
   return (
-    <motion.div
-      key={router.asPath}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 1.5 }}
-      className="bg-white"
-    >
+    <div className="bg-white">
       <Header dark={false} />
 
       <main className="pt-32 pb-12">
-        <motion.h1
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 3, ease: [0.11, 0.68, 0.17, 0.99] }}
-          className="text-4xl font-clash md:text-6xl font-semibold mb-8 text-center"
-        >
+        <h1 className="text-4xl font-clash md:text-6xl font-semibold mb-8 text-center">
           Expositions
-        </motion.h1>
+        </h1>
 
         <div className="px-4 sm:px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            
-              {expositions.map((item, index) => (
-                <motion.div
-                  key={item._id}
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{
-                    duration: 1.5,
-                    delay: 0.5 + index * 0.15,
-                    ease: [0.5, 0.7, 0.17, 0.9],
-                  }}
-                  className="w-full h-[300px] "
-                >
-                  <SectionPosterCard
-                    title={item.title}
-                    slug={item.slug.current}
-                    banner={item.banner}
-                    basePath="exposition"
-                  />
-                </motion.div>
-              ))}
+            {expositions.map((item, index) => (
+              <div
+                key={item._id}
+                className="w-full h-[300px]"
+              >
+                <SectionPosterCard
+                  title={item.title}
+                  slug={item.slug.current}
+                  banner={item.banner}
+                  basePath="exposition"
+                />
+              </div>
+            ))}
           </div>
         </div>
       </main>
-    </motion.div>
+    </div>
   )
 }

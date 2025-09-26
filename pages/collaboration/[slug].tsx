@@ -3,6 +3,7 @@ import { groq } from 'next-sanity'
 import { client } from '@/lib/sanity'
 import Header from '@/components/Header'
 import ProjectBanner from '@/components/ProjectBanner'
+import PageContent from '@/components/PageContent'
 import { ProjectNavContainer } from '@/components/ProjectNavCard' // Import du container
 import ImageDuo from '@/components/blocks/ImageDuo'
 import ImageText from '@/components/blocks/ImageText'
@@ -36,6 +37,7 @@ export default function CollaborationPage({ data, previousProject, nextProject }
         title={data.title}
         slug={data.slug.current}
         banner={data.banner}
+        basePath="collaboration"
         infoItems={[
           { label: 'Année', value: data.annee?.slice(0, 4) },
           { label: 'Lieu', value: data.lieu },
@@ -45,7 +47,7 @@ export default function CollaborationPage({ data, previousProject, nextProject }
         ]}
       />
 
-      <main className="px-6 py-6 max-w-6xl mx-auto space-y-6">
+      <PageContent className="px-6 py-6 max-w-6xl mx-auto space-y-6">
         {data.sections?.map((block, index) => {
           switch (block._type) {
             case 'videoBlock':
@@ -79,7 +81,7 @@ export default function CollaborationPage({ data, previousProject, nextProject }
             />
           </div>
         )}
-      </main>
+      </PageContent>
     </div>
   )
 }
