@@ -61,7 +61,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               <Link href="/creation" passHref legacyBehavior>
                 <a
                   onClick={onClose}
-                  className="flex w-full font-clashgrotesk font-medium items-baseline gap-1 pb-2"
+                  className="flex w-full font-clash font-medium items-baseline gap-1 pb-2"
                 >
                   <span className="text-sm md:text-base font-mono opacity-70">01/</span>
                   <span>Créations</span>
@@ -71,7 +71,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               <Link href="/collaboration" passHref legacyBehavior>
                 <a
                   onClick={onClose}
-                  className="flex w-full font-clashgrotesk font-medium items-baseline gap-1 pb-2"
+                  className="flex w-full font-clash font-medium items-baseline gap-1 pb-2"
                 >
                   <span className="text-sm md:text-base font-mono opacity-70">02/</span>
                   <span>Collaborations</span>
@@ -81,7 +81,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               <Link href="/exposition" passHref legacyBehavior>
                 <a
                   onClick={onClose}
-                  className="flex w-full font-clashgrotesk font-medium items-baseline gap-1 pb-2"
+                  className="flex w-full font-clash font-medium items-baseline gap-1 pb-2"
                 >
                   <span className="text-sm md:text-base font-mono opacity-70">03/</span>
                   <span>Expositions</span>
@@ -90,7 +90,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               <Link href="/shop" passHref legacyBehavior>
                 <a
                   onClick={onClose}
-                  className="flex w-full font-clashgrotesk font-medium items-baseline gap-1 pb-2"
+                  className="flex w-full font-clash font-medium items-baseline gap-1 pb-2"
                 >
                   <span className="text-sm md:text-base font-mono opacity-70">04/</span>
                   <span>Shop</span>

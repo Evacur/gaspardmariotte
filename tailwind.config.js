@@ -63,14 +63,14 @@ module.exports = {
   			}
   		},
   		fontFamily: {
-  			clash: [
-  				'Clash Grotesk"',
-  				'sans-serif'
-  			],
-  			satoshi: [
-  				'Satoshi"',
-  				'sans-serif'
-  			]
+			clash: [
+				'Clash Grotesk',
+				'sans-serif'
+			],
+			satoshi: [
+				'Satoshi',
+				'sans-serif'
+			]
   		},
   		borderRadius: {
   			card: '2px',
