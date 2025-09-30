@@ -90,7 +90,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
   const slugs = await client.fetch(groq`*[_type == "collaboration" && defined(slug.current)]{ slug }`)
   return {
     paths: slugs.map(({ slug }: any) => ({ params: { slug: slug.current } })),
-    fallback: false,
+    fallback: 'blocking',
   }
 }
 
