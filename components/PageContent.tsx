@@ -13,6 +13,7 @@ export default function PageContent({ children, className = '' }: PageContentPro
   useEffect(() => {
     if (typeof window === 'undefined') {
       setShowContent(true)
+      setContentVisible(true)
       return
     }
 
@@ -23,6 +24,7 @@ export default function PageContent({ children, className = '' }: PageContentPro
 
     if (!morph || prefersReduced) {
       setShowContent(true)
+      setContentVisible(true)
       return
     }
 

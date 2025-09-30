@@ -43,7 +43,7 @@ export default function ExpositionPage({ data, previousProject, nextProject }: P
         ]}
       />
 
-      <PageContent className="px-6 py-6 max-w-6xl mx-auto space-y-6">
+      <PageContent className="px-6 py-6 max-w-screen-lg mx-auto space-y-6">
         {data.sections?.map((block, index) => {
           switch (block._type) {
             case 'videoBlock':

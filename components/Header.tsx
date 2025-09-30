@@ -29,6 +29,7 @@ export default function Header({ dark = false, className = "" }: HeaderProps) {
           <Link href="/creation">Créations</Link>
           <Link href="/collaboration">Collaborations</Link>
           <Link href="/exposition">Expositions</Link>
+          <Link href="/shop">Shop</Link>
         </nav>
 
         <button

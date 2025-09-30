@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useEffect, useState, useCallback } from "react"
+import { useRef, useEffect } from "react"
 import Link from "next/link"
 import { urlFor } from "../lib/sanity"
 import { motion } from "framer-motion"
@@ -30,11 +30,14 @@ interface RippleSetup {
   material: THREE.ShaderMaterial
   mousePosition: THREE.Vector2
   isHovered: boolean
+  // éléments optionnels pour faciliter le resize/cleanup
+  mesh?: THREE.Mesh
+  geometry?: THREE.PlaneGeometry
+  texture?: THREE.Texture
+  container?: HTMLDivElement
 }
 
 export default function WavyCreationCard({ section, index, total, filterStrength = 0.7, glitchEdges = false }: Props) {
-  const [isHovered, setIsHovered] = useState(false)
-  const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 })
   
   const imageUrl = section.image
     ? urlFor(section.image)
@@ -62,21 +65,7 @@ export default function WavyCreationCard({ section, index, total, filterStrength
   const mobileSetupRef = useRef<RippleSetup>()
   const animationRef = useRef<number>()
 
-  // Gestionnaires d'événements pour les interactions
-  const handleMouseMove = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
-    const rect = event.currentTarget.getBoundingClientRect()
-    const x = (event.clientX - rect.left) / rect.width
-    const y = (event.clientY - rect.top) / rect.height
-    setMousePosition({ x, y })
-  }, [])
-
-  const handleMouseEnter = useCallback(() => {
-    setIsHovered(true)
-  }, [])
-
-  const handleMouseLeave = useCallback(() => {
-    setIsHovered(false)
-  }, [])
+  // Pas d'interactions souris/hover: l'animation est autonome
 
   const setupRippleEffect = (container: HTMLDivElement, imageUrl: string): Promise<RippleSetup> => {
     return new Promise((resolve) => {
@@ -84,7 +73,9 @@ export default function WavyCreationCard({ section, index, total, filterStrength
       const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
 
       const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true })
-      renderer.setSize(container.offsetWidth, container.offsetHeight)
+      const initialW = Math.max(1, container.offsetWidth || 0)
+      const initialH = Math.max(1, container.offsetHeight || 0)
+      renderer.setSize(initialW, initialH)
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
       container.appendChild(renderer.domElement)
 
@@ -95,22 +86,15 @@ export default function WavyCreationCard({ section, index, total, filterStrength
         texture.minFilter = THREE.LinearMipMapLinearFilter
         texture.magFilter = THREE.LinearFilter
 
+        const imgW = Math.max(1, (texture.image as any)?.width || 0)
+        const imgH = Math.max(1, (texture.image as any)?.height || 0)
+        const imageAspect = imgW / imgH
+        const cW = Math.max(1, container.offsetWidth || 0)
+        const cH = Math.max(1, container.offsetHeight || 0)
+        const containerAspect = cW / cH
 
-        const imageAspect = texture.image.width / texture.image.height
-        const containerAspect = container.offsetWidth / container.offsetHeight
-
-        let planeWidth = 2
-        let planeHeight = 2
-
-        if (containerAspect > imageAspect) {
-          planeWidth = 2
-          planeHeight = (2 / imageAspect) * containerAspect
-        } else {
-          planeHeight = 2
-          planeWidth = (2 * imageAspect) / containerAspect
-        }
-
-        const geometry = new THREE.PlaneGeometry(planeWidth, planeHeight)
+        // Géométrie de base 2x2, mise à l'échelle pour éviter toute NaN
+        const geometry = new THREE.PlaneGeometry(2, 2)
 
         const material = new THREE.ShaderMaterial({
           uniforms: {
@@ -122,7 +106,7 @@ export default function WavyCreationCard({ section, index, total, filterStrength
             uRipple3: { value: new THREE.Vector3(0.7, 0.3, 0) },
             uMouse: { value: new THREE.Vector2(0.5, 0.5) },
             uHover: { value: 0.0 },
-            uIntensity: { value: 1.0 },
+            uIntensity: { value: 1.1 },
             uSpeed: { value: 1.0 },
           },
           vertexShader: `
@@ -212,7 +196,7 @@ export default function WavyCreationCard({ section, index, total, filterStrength
             
             // Ajout de l'effet de souris
             distortedUV += mouseDistortion(uv);
-            distortedUV += (totalRipple + baseWave) * 0.012;
+            distortedUV += (totalRipple + baseWave) * 0.014;
 
             // Échantillonnage de texture avec interpolation
             vec4 color = texture2D(uTexture, distortedUV);
@@ -243,7 +227,24 @@ export default function WavyCreationCard({ section, index, total, filterStrength
         })
 
         const mesh = new THREE.Mesh(geometry, material)
+        // Calcul d'échelle (cover) safe
+        ;(() => {
+          let planeWidth = 2
+          let planeHeight = 2
+          if (containerAspect > imageAspect) {
+            planeWidth = 2
+            planeHeight = (2 / imageAspect) * containerAspect
+          } else {
+            planeHeight = 2
+            planeWidth = (2 * imageAspect) / containerAspect
+          }
+          mesh.scale.set(planeWidth / 2, planeHeight / 2, 1)
+        })()
         scene.add(mesh)
+
+        try {
+          renderer.domElement.addEventListener('webglcontextlost', (e) => { e.preventDefault() }, false)
+        } catch {}
 
         resolve({ 
           scene, 
@@ -251,7 +252,11 @@ export default function WavyCreationCard({ section, index, total, filterStrength
           renderer, 
           material, 
           mousePosition: new THREE.Vector2(0.5, 0.5),
-          isHovered: false
+          isHovered: false,
+          mesh,
+          geometry,
+          texture,
+          container
         })
       })
     })
@@ -278,32 +283,79 @@ export default function WavyCreationCard({ section, index, total, filterStrength
           const time = isMobile ? rawTime * 1.1 : rawTime
 
           const updateMaterial = (setup?: RippleSetup) => {
-            if (!setup) return
-            const { material, renderer, scene, camera } = setup
-            material.uniforms.uTime.value = time
+            try {
+              if (!setup) return
+              const { material, renderer, scene, camera } = setup
+              if (!material || !renderer || !scene || !camera) return
 
-            // Mise à jour des ondulations existantes avec des mouvements plus fluides
-            material.uniforms.uRipple1.value.z = Math.sin(time * 0.25) * 3.5
-            material.uniforms.uRipple2.value.z = Math.sin(time * 0.35 + 1.2) * 3.5
-            material.uniforms.uRipple3.value.z = Math.sin(time * 0.45 + 2.4) * 3.5
+              const containerEl = (setup as any).container as HTMLDivElement | null
+              const parent = containerEl || (renderer.domElement.parentElement as HTMLDivElement | null)
+              const cW = parent ? parent.offsetWidth : 0
+              const cH = parent ? parent.offsetHeight : 0
+              if (!cW || !cH || !isFinite(cW) || !isFinite(cH)) {
+                // Conteneur non visible ou 0px: éviter tout rendu / NaN
+                return
+              }
+              // Ajuster taille et résolution si nécessaire
+              const size = renderer.getSize(new THREE.Vector2())
+              if (size.x !== cW || size.y !== cH) {
+                renderer.setSize(cW, cH)
+                const res = material.uniforms.uResolution?.value as THREE.Vector2 | undefined
+                if (res && typeof res.set === 'function') {
+                  res.set(cW, cH)
+                } else {
+                  material.uniforms.uResolution = { value: new THREE.Vector2(cW, cH) } as any
+                }
+                // Recalibrer l'échelle pour couvrir
+                const tex = (setup as any).texture as THREE.Texture | undefined
+                if (tex && (tex.image as any)) {
+                  const imgW = Math.max(1, (tex.image as any).width || 0)
+                  const imgH = Math.max(1, (tex.image as any).height || 0)
+                  const imageAspect = imgW / imgH
+                  const containerAspect = cW / cH
+                  let planeWidth = 2
+                  let planeHeight = 2
+                  if (containerAspect > imageAspect) {
+                    planeWidth = 2
+                    planeHeight = (2 / imageAspect) * containerAspect
+                  } else {
+                    planeHeight = 2
+                    planeWidth = (2 * imageAspect) / containerAspect
+                  }
+                  const mesh = (setup as any).mesh as THREE.Mesh | undefined
+                  if (mesh) mesh.scale.set(planeWidth / 2, planeHeight / 2, 1)
+                }
+              }
+              material.uniforms.uTime.value = time
 
-            // Mouvements plus organiques des centres d'ondulation
-            material.uniforms.uRipple1.value.x = 0.5 + Math.sin(time * 0.06) * 0.12
-            material.uniforms.uRipple1.value.y = 0.5 + Math.cos(time * 0.09) * 0.12
+              // Mise à jour des ondulations existantes avec des mouvements plus fluides
+              material.uniforms.uRipple1.value.z = Math.sin(time * 0.25) * 3.5
+              material.uniforms.uRipple2.value.z = Math.sin(time * 0.35 + 1.2) * 3.5
+              material.uniforms.uRipple3.value.z = Math.sin(time * 0.45 + 2.4) * 3.5
 
-            material.uniforms.uRipple2.value.x = 0.3 + Math.sin(time * 0.08 + 1.0) * 0.1
-            material.uniforms.uRipple2.value.y = 0.7 + Math.cos(time * 0.12 + 1.0) * 0.1
+              // Mouvements plus organiques des centres d'ondulation
+              material.uniforms.uRipple1.value.x = 0.5 + Math.sin(time * 0.06) * 0.12
+              material.uniforms.uRipple1.value.y = 0.5 + Math.cos(time * 0.09) * 0.12
 
-            material.uniforms.uRipple3.value.x = 0.7 + Math.sin(time * 0.05 + 2.0) * 0.15
-            material.uniforms.uRipple3.value.y = 0.3 + Math.cos(time * 0.08 + 2.0) * 0.15
+              material.uniforms.uRipple2.value.x = 0.3 + Math.sin(time * 0.08 + 1.0) * 0.1
+              material.uniforms.uRipple2.value.y = 0.7 + Math.cos(time * 0.12 + 1.0) * 0.1
 
-            // Mise à jour des nouvelles propriétés
-            material.uniforms.uMouse.value.set(mousePosition.x, mousePosition.y)
-            material.uniforms.uHover.value = isHovered ? 1.0 : 0.0
-            material.uniforms.uIntensity.value = isHovered ? 1.5 : 1.0
-            material.uniforms.uSpeed.value = isHovered ? 1.3 : 1.0
+              material.uniforms.uRipple3.value.x = 0.7 + Math.sin(time * 0.05 + 2.0) * 0.15
+              material.uniforms.uRipple3.value.y = 0.3 + Math.cos(time * 0.08 + 2.0) * 0.15
 
-            renderer.render(scene, camera)
+              // Activer en continu l'effet type "hover" mais piloté automatiquement
+              const autoX = 0.5 + Math.sin(time * 0.20) * 0.15
+              const autoY = 0.5 + Math.cos(time * 0.23) * 0.15
+              material.uniforms.uMouse.value.set(autoX, autoY)
+              material.uniforms.uHover.value = 0.4
+              material.uniforms.uIntensity.value = 1.1
+              material.uniforms.uSpeed.value = 1.0
+
+              renderer.render(scene, camera)
+            } catch (err) {
+              // Éviter de casser la boucle d'animation en dev/hydratation
+              return
+            }
           }
 
           updateMaterial(desktopSetupRef.current)
@@ -329,6 +381,25 @@ export default function WavyCreationCard({ section, index, total, filterStrength
         if (width === 0 || height === 0) return
         setup.renderer.setSize(width, height)
         setup.material.uniforms.uResolution.value.set(width, height)
+        // Mettre à l'échelle le mesh pour couvrir
+        const tex = (setup as any).texture as THREE.Texture | undefined
+        const mesh = (setup as any).mesh as THREE.Mesh | undefined
+        if (tex && (tex.image as any) && mesh) {
+          const imgW = Math.max(1, (tex.image as any).width || 0)
+          const imgH = Math.max(1, (tex.image as any).height || 0)
+          const imageAspect = imgW / imgH
+          const containerAspect = width / height
+          let planeWidth = 2
+          let planeHeight = 2
+          if (containerAspect > imageAspect) {
+            planeWidth = 2
+            planeHeight = (2 / imageAspect) * containerAspect
+          } else {
+            planeHeight = 2
+            planeWidth = (2 * imageAspect) / containerAspect
+          }
+          mesh.scale.set(planeWidth / 2, planeHeight / 2, 1)
+        }
       }
 
       updateSize(desktopSetupRef.current, desktopCanvasRef.current!)
@@ -343,17 +414,29 @@ export default function WavyCreationCard({ section, index, total, filterStrength
 
       if (desktopSetupRef.current && desktopCanvasRef.current) {
         desktopCanvasRef.current.innerHTML = ""
+        try {
+          const anySetup: any = desktopSetupRef.current
+          anySetup.geometry?.dispose?.()
+          anySetup.material?.dispose?.()
+          anySetup.texture?.dispose?.()
+        } catch {}
         desktopSetupRef.current.renderer.dispose()
         desktopSetupRef.current = undefined
       }
 
       if (mobileSetupRef.current && mobileCanvasRef.current) {
         mobileCanvasRef.current.innerHTML = ""
+        try {
+          const anySetup: any = mobileSetupRef.current
+          anySetup.geometry?.dispose?.()
+          anySetup.material?.dispose?.()
+          anySetup.texture?.dispose?.()
+        } catch {}
         mobileSetupRef.current.renderer.dispose()
         mobileSetupRef.current = undefined
       }
     }
-  }, [imageUrl, imageMobileUrl, mousePosition, isHovered])
+  }, [imageUrl, imageMobileUrl])
 
 
   function AnimatedLetters({ text }: { text: string }) {
@@ -385,23 +468,20 @@ export default function WavyCreationCard({ section, index, total, filterStrength
     <Link key={section._id} href={`/creation/${section.slug.current}`} className="block group w-full">
       <div 
         className="hidden md:flex flex-col items-center justify-center h-screen w-full snap-start relative overflow-hidden"
-        onMouseMove={handleMouseMove}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
       >
         <div className="absolute inset-0 w-full h-full z-0">
           <div ref={desktopCanvasRef} className="w-full h-full opacity-80" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/40 transition-all duration-500 group-hover:from-black/5 group-hover:via-black/15 group-hover:to-black/30" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/40 transition-all duration-500" />
         </div>
 
-        <div className="relative z-10 flex flex-col items-center gap-0 px-6 max-w-6xl transition-all duration-500 group-hover:scale-105">
-          <span className="text-[16px] font-medium mb-4 text-white/70 hidden sm:inline tracking-wider transition-all duration-300 group-hover:text-white/90">
+        <div className="relative z-10 flex flex-col items-center gap-0 px-6 max-w-6xl transition-all duration-500">
+          <span className="text-[16px] font-medium mb-4 text-white/70 hidden sm:inline tracking-wider transition-all duration-300">
             {String(index + 1).padStart(2, "0")}/{String(total).padStart(2, "0")}
           </span>
-          <h2 className="text-[150px] xl:text-[150px] font-bold font-clash leading-[0.85] text-white text-center transition-all duration-500 group-hover:drop-shadow-2xl">
+          <h2 className="text-[150px] xl:text-[150px] font-bold font-clash leading-[0.85] text-white text-center transition-all duration-500">
             <AnimatedLetters text={section.title} />
           </h2>
-          <p className="text-[20px] font-light text-white/90 text-center mt-6 hidden sm:block max-w-3xl leading-relaxed transition-all duration-300 group-hover:text-white">
+          <p className="text-[20px] font-light text-white/90 text-center mt-6 hidden sm:block max-w-3xl leading-relaxed transition-all duration-300">
             {section.description}
           </p>
         </div>
@@ -410,17 +490,14 @@ export default function WavyCreationCard({ section, index, total, filterStrength
       <div className="md:hidden w-full px-4 mb-6">
         <div 
           className="relative h-[600px] w-full overflow-hidden rounded-lg group"
-          onMouseMove={handleMouseMove}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
         >
           <div ref={mobileCanvasRef} className="w-full h-full" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/10 transition-all duration-500 z-10 group-hover:from-black/50 group-hover:via-black/25 group-hover:to-black/5" />
-          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white text-center px-6 transition-all duration-500 group-hover:scale-105">
-            <h2 className="text-[40px] sm:text-[70px] font-clash font-bold leading-[0.85] mb-4 relative transition-all duration-300 group-hover:drop-shadow-xl">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/10 transition-all duration-500 z-10" />
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white text-center px-6 transition-all duration-500">
+            <h2 className="text-[40px] sm:text-[70px] font-clash font-bold leading-[0.85] mb-4 relative transition-all duration-300">
               <span className="relative z-10">{section.title}</span>
             </h2>
-            <p className="text-[24px] font-light text-white/90 max-w-sm leading-relaxed transition-all duration-300 group-hover:text-white">{section.description}</p>
+            <p className="text-[24px] font-light text-white/90 max-w-sm leading-relaxed transition-all duration-300">{section.description}</p>
           </div>
         </div>
       </div>

@@ -1,18 +1,19 @@
 import Link from 'next/link'
-import { urlFor } from '@/lib/sanity'
+import { useRouter } from 'next/router'
+import { getPosterUrl } from '@/lib/poster'
+import MorphablePoster from './MorphablePoster'
+import { startPosterTransition } from '@/lib/posterTransition'
 
 interface ProjectNavCardProps {
   direction: 'prev' | 'next'
   slug: string
   banner?: any
-  basePath?: 'exposition' | 'collaboration'
+  basePath?: 'exposition' | 'collaboration' | 'shop'
   title?: string
   isAlone?: boolean // Nouvelle prop pour savoir si la carte est seule
 }
 
-const getImageUrl = (image: any) => {
-  return image?._type === 'image' && image.asset ? urlFor(image).url() : null
-}
+const getImageUrl = (image: any) => getPosterUrl(image)
 
 export default function ProjectNavCard({
   direction,
@@ -22,30 +23,42 @@ export default function ProjectNavCard({
   title,
   isAlone = false,
 }: ProjectNavCardProps) {
+  const router = useRouter()
   const href = `/${basePath}/${slug}`
   const imageUrl = getImageUrl(banner)
 
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    const sourceEl = (e.currentTarget as HTMLElement)
+    startPosterTransition({
+      sourceEl,
+      imageUrl: imageUrl || '',
+      durationMs: 1500,
+      easing: 'cubic-bezier(0.65, 0, 0.35, 1)',
+      addGradient: true,
+      targetId: `banner-${basePath}-${slug}`,
+    })
+    router.push(href)
+  }
+
   return (
-    <Link href={href} legacyBehavior>
-      <a className={`
-        h-[150px] rounded-sm overflow-hidden bg-gray-300 block group relative
+    <Link
+      href={href}
+      scroll={false}
+      onClick={handleClick}
+      className={`
+        group relative w-full h-[45vh] rounded-sm overflow-hidden bg-black flex items-center justify-center cursor-pointer
         ${isAlone ? 'w-full' : 'w-full flex-1 min-w-0'}
-      `}>
-        {imageUrl && (
-          <img
-            src={imageUrl}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-            alt={title || ''}
-          />
-        )}
-        <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition duration-300" />
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-4">
-          <span className="text-white text-xl sm:text-2xl font-clash font-semibold tracking-wide">
+      `}
+    >
+      <MorphablePoster imageUrl={imageUrl} alt={title || ''} variant="card">
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-4">
+          <span className="text-white text-2xl md:text-3xl lg:text-4xl font-clash font-semibold tracking-wide">
             {direction === 'prev' ? 'Précédent' : 'Suivant'}
           </span>
-          {title && <p className="mt-2 text-white text-sm">{title}</p>}
+          {title && <p className="mt-1 text-white text-sm md:text-base lg:text-lg">{title}</p>}
         </div>
-      </a>
+      </MorphablePoster>
     </Link>
   )
 }
@@ -62,7 +75,7 @@ interface ProjectNavContainerProps {
     banner?: any
     title?: string
   }
-  basePath?: 'exposition' | 'collaboration'
+  basePath?: 'exposition' | 'collaboration' | 'shop'
 }
 
 export function ProjectNavContainer({

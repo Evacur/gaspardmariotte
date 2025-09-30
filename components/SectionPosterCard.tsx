@@ -11,7 +11,7 @@ type Props = {
   title: string
   slug: string
   banner?: any
-  basePath?: 'exposition' | 'collaboration'
+  basePath?: 'exposition' | 'collaboration' | 'shop'
 }
 
 export default function SectionPosterCard({ title, slug, banner, basePath = 'exposition' }: Props) {

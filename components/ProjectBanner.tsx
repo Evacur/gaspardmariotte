@@ -17,7 +17,7 @@ type Props = {
   slug: string
   banner?: any
   infoItems: InfoItem[]
-  basePath?: 'exposition' | 'collaboration'
+  basePath?: 'exposition' | 'collaboration' | 'shop'
 }
 
 // Helper pour retourner une URL uniquement si l'image est valide

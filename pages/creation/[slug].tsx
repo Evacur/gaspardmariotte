@@ -26,7 +26,7 @@ const query = groq`
       title,
       technique,
       format,
-      date,
+      "date": date[0..3],
       image
     }
   }

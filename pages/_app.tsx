@@ -31,15 +31,22 @@ export default function App({ Component, pageProps }: AppProps) {
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches
   }, [])
 
+  const isIndexRoute = (url: string): boolean => {
+    const path = (url || '').split('?')[0].split('#')[0]
+    return (
+      path === '/' ||
+      path === '/exposition' ||
+      path === '/creation' ||
+      path === '/collaboration' ||
+      path === '/shop'
+    )
+  }
+
   useEffect(() => {
     if (prefersReducedMotion) return
 
     const handleStart = (url: string) => {
-      const fromHome = router.pathname === '/'
-      const toHome = url === '/' || url.startsWith('/#')
-      if (fromHome && !toHome) {
-        setBannerPhase('in')
-      }
+      if (isIndexRoute(url)) setBannerPhase('in')
     }
 
     const endTransition = () => {
