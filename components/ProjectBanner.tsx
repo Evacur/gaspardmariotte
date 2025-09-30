@@ -113,7 +113,7 @@ export default function ProjectBanner({ title, slug, banner, infoItems, basePath
           </motion.h1>
 
           <motion.div 
-            className="flex flex-wrap gap-x-4 gap-y-2 text-[12px] md:text-[14px] lg:text-[14px] xl:text-[20px] text-white/90"
+            className="flex flex-wrap gap-2 md:gap-4 text-[12px] md:text-[14px] lg:text-[14px] xl:text-[20px] text-white/90"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: showContent ? 1 : 0, y: showContent ? 0 : 50 }}
             transition={{
@@ -135,7 +135,7 @@ export default function ProjectBanner({ title, slug, banner, infoItems, basePath
                 className="max-w-[300px] min-w-[120px]"
               >
                 <p className="font-semibold tracking-wide text-white">{label}</p>
-                <p className="break-words">{value || '—'}</p>
+                <p className="break-words whitespace-normal max-w-[300px]">{value || '—'}</p>
               </motion.div>
             ))}
           </motion.div>
