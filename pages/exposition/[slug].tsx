@@ -29,7 +29,7 @@ type Props = {
 export default function ExpositionPage({ data, previousProject, nextProject }: Props) {
   return (
     <div className="bg-white">
-      <Header dark={true} />
+      <Header dark={true} backSlugPath={previousProject ? `/exposition/${previousProject.slug.current}` : undefined} />
 
       <ProjectBanner
         title={data.title}

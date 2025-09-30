@@ -75,6 +75,7 @@ export default function Carousel({ images, alt = 'Image', className = '', fixedH
             <img
               key={i}
               src={url}
+              crossOrigin="anonymous"
               alt={alt}
               onPointerDown={onPointerDown}
               onPointerMove={onPointerMove}

@@ -31,7 +31,7 @@ type Props = {
 export default function CollaborationPage({ data, previousProject, nextProject }: Props) {
   return (
     <div className="bg-white">
-      <Header dark={true} />
+      <Header dark={true} backSlugPath={previousProject ? `/collaboration/${previousProject.slug.current}` : undefined} />
 
       <ProjectBanner
         title={data.title}

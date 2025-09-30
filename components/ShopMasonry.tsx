@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { startPosterTransition } from '@/lib/posterTransition'
 import { getPosterUrl } from '@/lib/poster'
+import { Badge } from '@/components/ui/badge'
 
 type ShopCard = {
   _id: string
@@ -10,6 +11,7 @@ type ShopCard = {
   prix?: number
   format?: string
   description?: string
+  vendu?: boolean
 }
 
 type Props = {
@@ -57,11 +59,19 @@ export default function ShopMasonry({ items }: Props) {
                   {item.title}
                 </h3>
                 {(item.format || item.prix != null) && (
-                  <p className="text-sm text-black/60 mt-1">
-                    {item.format ? item.format : ''}
-                    {item.format && item.prix != null ? ' · ' : ''}
-                    {item.prix != null ? `${item.prix} €` : ''}
-                  </p>
+                  <div className="mt-1 flex items-center gap-2 text-sm text-black/60">
+                    <p>
+                      {item.format ? item.format : ''}
+                      {item.format && item.prix != null ? ' · ' : ''}
+                      {item.prix != null ? `${item.prix} €` : ''}
+                    </p>
+                    <Badge
+                      variant={item.vendu ? 'secondary' : 'default'}
+                      className={item.vendu ? 'bg-black/10 text-black border-transparent' : ''}
+                    >
+                      {item.vendu ? 'Vendu' : 'En vente'}
+                    </Badge>
+                  </div>
                 )}
                 {item.description && (
                   <p className="text-sm text-black/60 mt-1 line-clamp-2">

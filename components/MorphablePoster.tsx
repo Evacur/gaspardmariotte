@@ -28,6 +28,7 @@ export default function MorphablePoster({
         <>
           <img
             src={imageUrl}
+            crossOrigin="anonymous"
             alt={alt}
             className="absolute inset-0 w-full h-full object-cover z-0"
           />

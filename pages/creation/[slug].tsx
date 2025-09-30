@@ -45,7 +45,7 @@ export default function CreationSlugPage({ title, creations }: Props) {
 
   return (
     <div className="bg-white">
-      <Header dark={false} className="fixed top-0 left-0 w-full z-30" />
+      <Header dark={false} className="fixed top-0 left-0 w-full z-30" backSlugPath={undefined} />
 
       <main className={`${isMobile ? 'pt-20' : 'pt-16'} min-h-screen flex md:items-start sm:items-center justify-center flex-col bg-white py-12`}>
         <h1 className="md:text-6xl sm:text-2xl font-clashgrotesk font-black mb-2 px-4">

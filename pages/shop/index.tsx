@@ -12,6 +12,7 @@ type ShopItem = {
   prix?: number
   format?: string
   description?: string
+  vendu?: boolean
 }
 
 const query = groq`
@@ -22,7 +23,8 @@ const query = groq`
     image,
     prix,
     format,
-    description
+    description,
+    vendu
   }
 `
 

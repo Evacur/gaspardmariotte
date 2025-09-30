@@ -53,7 +53,7 @@ export default function ProjectNavCard({
     >
       <MorphablePoster imageUrl={imageUrl} alt={title || ''} variant="card">
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-4">
-          <span className="text-white text-2xl md:text-3xl lg:text-4xl font-clash font-semibold tracking-wide">
+          <span className="text-white text-xl md:text-3xl lg:text-4xl font-clash font-bold tracking-wide">
             {direction === 'prev' ? 'Précédent' : 'Suivant'}
           </span>
           {title && <p className="mt-1 text-white text-sm md:text-base lg:text-lg">{title}</p>}

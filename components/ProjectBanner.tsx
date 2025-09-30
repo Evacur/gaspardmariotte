@@ -26,6 +26,10 @@ const getImageUrl = (image: any) => getPosterUrl(image)
 export default function ProjectBanner({ title, slug, banner, infoItems, basePath = 'exposition' }: Props) {
   const router = useRouter()
   const [showContent, setShowContent] = useState(false)
+  const [isBannerVisible, setIsBannerVisible] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return true
+    return !(window as any).__posterTransition
+  })
   
   const imageUrl = getImageUrl(banner)
   const sharedId = `banner-${basePath}-${slug}`
@@ -34,6 +38,7 @@ export default function ProjectBanner({ title, slug, banner, infoItems, basePath
     const win = window as any
     const reveal = () => setShowContent(true)
     if (!win.__posterTransition) {
+      setIsBannerVisible(true)
       reveal();
       return
     }
@@ -53,6 +58,7 @@ export default function ProjectBanner({ title, slug, banner, infoItems, basePath
           // Début du fade-out de l'overlay → ré-afficher la bannière
           target.style.opacity = prevOpacity || '1'
           target.style.visibility = prevVisibility || 'visible'
+          setIsBannerVisible(true)
           window.removeEventListener('imageMorph:reached', onReached)
         }
         window.addEventListener('imageMorph:reached', onReached)
@@ -68,21 +74,6 @@ export default function ProjectBanner({ title, slug, banner, infoItems, basePath
         }
         window.addEventListener('imageMorph:done', onDone)
         finishPosterTransition(target)
-        // Filet de sécurité supplémentaire si l'événement ne remonte pas
-        const baseDur = (win.__posterTransition?.durationMs ?? 1400)
-        const dur = baseDur + 400
-        // Ré-afficher au début estimé du fadeout même si 'reached' ne remonte pas
-        setTimeout(() => {
-          try {
-            target.style.opacity = '1'
-            target.style.visibility = 'visible'
-          } catch {}
-        }, Math.max(0, baseDur - 280))
-        setTimeout(() => {
-          if (!showContent) {
-            reveal()
-          }
-        }, dur)
       } else if (attempts < 10) {
         requestAnimationFrame(tryFinish)
       } else {
@@ -90,6 +81,7 @@ export default function ProjectBanner({ title, slug, banner, infoItems, basePath
         try { win.__posterTransition?.overlay?.remove?.() } catch {}
         win.__posterTransition = undefined
         window.dispatchEvent(new Event('imageMorph:done'))
+        setIsBannerVisible(true)
         reveal()
       }
     }
@@ -102,6 +94,7 @@ export default function ProjectBanner({ title, slug, banner, infoItems, basePath
         <div
           data-shared-id={sharedId}
           className="relative w-full h-[45vh] text-white overflow-hidden"
+          style={{ opacity: isBannerVisible ? undefined : 0, visibility: isBannerVisible ? 'visible' : 'hidden' }}
         >
       <MorphablePoster imageUrl={imageUrl} alt={title || 'Image'} variant="banner">
         <div className="relative z-20 h-full flex flex-col justify-end pb-4">
