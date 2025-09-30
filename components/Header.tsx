@@ -33,6 +33,7 @@ export default function Header({ dark = false, className = "", backSlugPath }: H
 
   const isSlugPage = typeof router.pathname === 'string' && router.pathname.includes('/[slug]')
   const basePath = typeof router.pathname === 'string' ? `/${router.pathname.split('/')[1] || ''}` : '/'
+  const isHome = router.pathname === '/'
 
   // Détection luminosité de la zone visuelle derrière le header (bannière/carrousel)
   useEffect(() => {
@@ -252,7 +253,7 @@ export default function Header({ dark = false, className = "", backSlugPath }: H
     }
   }
 
-  const useLightText = isOverlayingVisual ? (autoTextMode === 'dark') : false
+  const useLightText = isHome ? true : (isOverlayingVisual ? (autoTextMode === 'dark') : false)
 
   return (
     <header
