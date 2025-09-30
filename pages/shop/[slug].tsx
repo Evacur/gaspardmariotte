@@ -162,6 +162,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       nextItem,
       related: allItems.filter((p) => p.slug.current !== slug).sort(() => 0.5 - Math.random()).slice(0, 4),
     },
+    revalidate: 120,
   }
 }
 

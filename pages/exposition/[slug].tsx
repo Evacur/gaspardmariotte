@@ -145,5 +145,6 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       previousProject,
       nextProject,
     },
+    revalidate: 300,
   }
 }

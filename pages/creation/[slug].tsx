@@ -122,5 +122,6 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       title: data.title,
       creations: data.creations,
     },
+    revalidate: 300,
   }
 }
